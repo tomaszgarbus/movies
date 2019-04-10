@@ -1,6 +1,5 @@
 """
 Splits data/dbpedia_infobox/infobox_properties_mapped_en.tql into multiple files.
-Each resulting file corresponds to a single resource name.
 
 Places the resulting files in data/dbpedia_infobox/split/.
 """
@@ -13,11 +12,10 @@ LINES = 27525174
 SPLIT_PATH = 'data/dbpedia_infobox/split'
 
 
-def get_and_create_path_for_resource_name(rname: str) -> str:
+def get_filename_for_resource_name(rname: str) -> str:
     rname = re.sub('/', '_', rname)
-    dir = os.path.join(SPLIT_PATH, rname[0])
-    os.makedirs(dir, exist_ok=True)
-    return os.path.join(dir, rname)
+    path = os.path.join(SPLIT_PATH, rname[0])
+    return path + '.tql'
 
 
 if __name__ == '__main__':
@@ -31,6 +29,6 @@ if __name__ == '__main__':
             offset = len('<http://dbpedia.org/resource/')
             resource_name = resource_tag[offset:-1]
 
-            filename = get_and_create_path_for_resource_name(resource_name)
-            with open(filename, 'a') as output_file:
+            filename = get_filename_for_resource_name(resource_name)
+            with open(filename, 'a+') as output_file:
                 output_file.write(line)
