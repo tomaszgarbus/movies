@@ -97,7 +97,7 @@ class VisualizeJson:
         :param jsons_in: Input jsons.
         """
         def random_color():
-            return np.random.uniform(), np.random.uniform(), np.random.uniform()
+            return [np.random.uniform(), np.random.uniform(), np.random.uniform()]
         # Each json gets its own random color for points visualization.
         colors = [random_color() for _ in jsons_in]
 
@@ -107,7 +107,7 @@ class VisualizeJson:
             pairs = self.get_number_context_pairs(json_in)
             pairs = list(filter(lambda a: not (np.isnan(a[1])).any(), pairs))
             triples += list(map(lambda p: (p[0], p[1], i), pairs))
-            c += colors[i] * len(pairs)
+            c += [colors[i]] * len(pairs)
         only_embeddings = np.array(list(map(lambda a: a[1], triples)))
         reduced = TSNE(perplexity=5.0, verbose=2, learning_rate=2.0, n_iter=10000).fit_transform(only_embeddings)
         fig, ax = plt.subplots()
@@ -115,4 +115,4 @@ class VisualizeJson:
         for i, txt in enumerate(reduced):
             ax.annotate(triples[i][0], reduced[i])
         plt.show()
-        raise NotImplemented()
+        raise NotImplemented
