@@ -3,17 +3,15 @@ from omdb_download import get_and_cache_movie_json
 from visualize_json import VisualizeJson
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
+from dbpedia_helper import DBPediaHelper
 
 if __name__ == '__main__':
-    movie_json = get_and_cache_movie_json("Star Wars Episode V")
-    print(movie_json)
+    helper = DBPediaHelper()
+    dbpedia_json = helper.load_resourse_as_flat_json("Star_Wars_(film)")
+    print(dbpedia_json)
+    omdb_json = get_and_cache_movie_json("Star Wars Episode V")
+    print(omdb_json)
 
     model = gensim.models.KeyedVectors.load_word2vec_format('./data/GoogleNews-vectors-negative300.bin', binary=True)
     json_viz = VisualizeJson(model)
-    pairs = json_viz.get_number_context_pairs(movie_json)
-    trans = TSNE().fit_transform(list(map(lambda a: a[1], pairs)))
-    fig, ax = plt.subplots()
-    ax.scatter(trans[:,0], trans[:,1])
-    for i, txt in enumerate(trans):
-        ax.annotate(pairs[i][0], trans[i])
-    plt.show()
+    json_viz.visualize_many([omdb_json, dbpedia_json])
