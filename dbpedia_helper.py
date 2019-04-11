@@ -4,6 +4,8 @@ Provides an abstraction level over DBPedia infoboxes properties dataset.
 import re
 import os
 from tqdm import tqdm
+import rdflib
+from typing import Dict
 
 
 class DBPediaHelper:
@@ -47,3 +49,42 @@ class DBPediaHelper:
                 filename = DBPediaHelper.get_filename_for_resource_name(resource_name)
                 with open(filename, 'a+') as output_file:
                     output_file.write(line)
+
+    def load_resource_string(self, rname: str) -> str:
+        """
+        Gets the resource by resource name and returns raw string - lines from this resource.
+
+        :param rname: Resource name.
+        :return: String containing lines for resource |rname|.
+        """
+        rpath: str = DBPediaHelper.get_filename_for_resource_name(rname)
+        if not os.path.exists(rpath):
+            raise FileNotFoundError
+        with open(rpath, 'r') as rfile:
+            content = rfile.read()
+        content_filtered = list(filter(lambda line: line.startswith('<http://dbpedia.org/resource/{0}>'.format(rname)),
+                                       content.split('\n')))
+        return '\n'.join(content_filtered)
+
+    def load_resourse_as_flat_json(self, rname: str) -> Dict:
+        """
+        Gets the resource by resource name and produces a flat Json out of it.
+
+        :param rname: Resource name.
+        :return: A dict object - a Python representation of a Json.
+        """
+        rstr = self.load_resource_string(rname)
+
+        flat_json = {}
+        # Every predicate starts with this prefix string.
+        pred_pref = 'http://dbpedia.org/property/'
+
+        for line in rstr.split('\n'):
+            subj = '<http://dbpedia.org/resource/{0}>'.format(rname)
+            line = line[len(subj):]
+            pred_long = line[line.find('<')+1:line.find('>')]
+            pred_short = pred_long[len(pred_pref):]
+            line = line[line.find('>')+1:]
+            obj = line[:line.find('<')]
+            flat_json[pred_short] = obj.strip(' ^"')
+        return flat_json
