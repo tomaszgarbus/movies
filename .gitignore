@@ -1,3 +1,6 @@
 .idea
-data
+data/dbpedia_infobox/infobox_properties_mapped_en.tql
+data/dbpedia_infobox/split/*
+data/GoogleNews-vectors-negative300.bin
+data/GoogleNews-vectors-negative300.bin.gz
 __pycache__
