@@ -81,14 +81,14 @@ class VisualizeJson:
         and displays with matplotlib.
         :param json_in: An input json.
         """
-        pairs = self.get_number_context_pairs(json_in)
-        pairs = list(filter(lambda a: not (np.isnan(a[1])).any(), pairs))
-        only_embeddings = np.array(list(map(lambda a: a[1], pairs)))
+        triples = self.get_number_context_pairs(json_in)
+        triples = list(filter(lambda a: not (np.isnan(a[1])).any(), triples))
+        only_embeddings = np.array(list(map(lambda a: a[1], triples)))
         reduced = TSNE(perplexity=5.0, verbose=2, learning_rate=20.0, n_iter=10000).fit_transform(only_embeddings)
         fig, ax = plt.subplots()
         ax.scatter(reduced[:, 0], reduced[:, 1])
         for i, txt in enumerate(reduced):
-            ax.annotate(pairs[i][0], reduced[i])
+            ax.annotate(triples[i][2] + ": " + triples[i][0], reduced[i])
         plt.show()
 
     def visualize_many(self, jsons_in: List[Dict]) -> None:
@@ -111,9 +111,12 @@ class VisualizeJson:
             triples += list(map(lambda p: (p[0], p[1], i), pairs))
             c += [colors[i]] * len(pairs)
         only_embeddings = np.array(list(map(lambda a: a[1], triples)))
-        reduced = TSNE(perplexity=5.0, verbose=2, learning_rate=2.0, n_iter=10000).fit_transform(only_embeddings)
+        reduced = TSNE(perplexity=5.0,
+                       verbose=2,
+                       learning_rate=2.0,
+                       n_iter=10000).fit_transform(only_embeddings)
         fig, ax = plt.subplots()
         ax.scatter(reduced[:, 0], reduced[:, 1], c=np.array(c))
         for i, txt in enumerate(reduced):
-            ax.annotate(triples[i][0], reduced[i])
+            ax.annotate(triples[i][2] + ": " + triples[i][0], reduced[i])
         plt.show()
