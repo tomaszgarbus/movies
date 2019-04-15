@@ -2,6 +2,8 @@ import requests
 from lxml import html
 from typing import Optional, Dict, Callable
 import nltk
+import os
+from config import WIKIPEDIA_CACHE_DIR
 
 
 def download_article(resource_name: str) -> Optional[str]:
@@ -16,6 +18,46 @@ def download_article(resource_name: str) -> Optional[str]:
     text = rsp.json()['parse']['text']['*']
     parsed_html = html.document_fromstring(text)
     return parsed_html.text_content()
+
+
+def store_article_to_cache(resource_name: str, article_text: str) -> None:
+    """
+    Stores the |article_text| to cache dedicated to Wikipedia articles.
+
+    :param resource_name: Exact Wikipedia resource name corresponding to the article.
+    :param article_text: Text of the article to be saved.
+    """
+    if not os.path.exists(WIKIPEDIA_CACHE_DIR):
+        os.makedirs(WIKIPEDIA_CACHE_DIR, exist_ok=True)
+    fpath = os.path.join(WIKIPEDIA_CACHE_DIR, resource_name)
+    with open(fpath, 'w+') as file:
+        file.write(article_text)
+
+
+def load_article_from_cache(resource_name: str) -> Optional[str]:
+    """
+    Loads article text from cache or returns None if not found.
+
+    :param resource_name: Exact Wikipedia resource name corresponding to the article.
+    :return: Either a string with cached article text or None.
+    """
+    if not os.path.exists(WIKIPEDIA_CACHE_DIR):
+        return None
+    fpath = os.path.join(WIKIPEDIA_CACHE_DIR, resource_name)
+    if not os.path.exists(fpath):
+        return None
+    with open(fpath, 'r') as file:
+        return file.read()
+
+
+def download_article_or_load_from_cache(resource_name: str) -> Optional[str]:
+    """
+    Fetches the article text for the given Wikipedia resource name.
+    :param resource_name: Exact name of the Wikipedia resource for the article.
+    :return: Either a string with article in plain text (no HTML nor markdown) or None if none could have been obtained.
+    """
+    cache_result = load_article_from_cache(resource_name)
+    return cache_result if cache_result is not None else download_article(resource_name)
 
 
 def article_text_to_context_json(article_text: str,
