@@ -123,7 +123,7 @@ def filter_no_letter_or_digit(tokenized_article: List[str]) -> List[str]:
     letters_and_digits = string.ascii_letters + string.digits
 
     def contains_letter_or_digit(s: str) -> bool:
-        return any(map(lambda c: c in letters_and_digits, letters_and_digits))
+        return any(map(lambda c: c in s, letters_and_digits))
 
     return list(filter(contains_letter_or_digit, tokenized_article))
 
