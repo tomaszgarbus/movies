@@ -6,3 +6,6 @@ DATA_DIR = 'data'
 
 # Path to cached json responses from omdbapi.com.
 OMDB_JSONS_DIR = DATA_DIR + '/' + 'omdb_jsons'
+
+# Path to cached Wikipedia articles.
+WIKIPEDIA_CACHE_DIR = DATA_DIR + '/' + 'wiki_cache'
