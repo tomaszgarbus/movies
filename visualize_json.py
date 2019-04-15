@@ -39,12 +39,12 @@ class VisualizeJson:
     def get_number_context_pairs(self, json_in: Dict, parent_keys: List[np.ndarray] = [])\
             -> List[Tuple[str, np.ndarray, str]]:
         """
-        Transforms a json into a list of pairs (number, vectorized context).
+        Transforms a json into a list of pairs (number, vectorized context, raw context).
         TODO: handle KeyError (no such word in vocabulary)
 
         :param json_in: A dictionary created from an input json.
         :param parent_keys: Keys passed down from higher levels of json.
-        :return: List of pairs (number, vectorized context).
+        :return: List of pairs (number, vectorized context, raw context).
         """
         ret = []
         # TODO: Handle nested objects.
@@ -66,10 +66,10 @@ class VisualizeJson:
                 # TODO: smarter string handling
                 allowed_chars = '0123456789,.%/$E'
                 if all(map(lambda c: c in allowed_chars, json_in[key])):
-                    ret.append((json_in[key], self.mean_of_words(parent_keys_ext)))
+                    ret.append((json_in[key], self.mean_of_words(parent_keys_ext), parent_keys_ext))
             if isinstance(json_in[key], int) or isinstance(json_in[key], float) or isinstance(json_in[key], bool):
                 # If the value is a number, we can directly append it to ret.
-                ret.append((str(json_in[key]), self.mean_of_words(parent_keys_ext)))
+                ret.append((str(json_in[key]), self.mean_of_words(parent_keys_ext), parent_keys_ext))
             else:
                 pass
         return ret
