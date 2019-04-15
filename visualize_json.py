@@ -36,7 +36,7 @@ class VisualizeJson:
         # TODO: weighted mean
         return np.mean(words, axis=0)
 
-    def get_number_context_pairs(self, json_in: Dict, parent_keys: List[np.ndarray] = [])\
+    def get_number_context_pairs(self, json_in: Dict, parent_keys: List[str] = [])\
             -> List[Tuple[str, np.ndarray, str]]:
         """
         Transforms a json into a list of pairs (number, vectorized context, raw context).
@@ -47,12 +47,17 @@ class VisualizeJson:
         :return: List of pairs (number, vectorized context, raw context).
         """
         ret = []
-        # TODO: Handle nested objects.
         for key in json_in:
+            # Splits the key into multiple words if it is provided as a camelCase.
             key_camel_split = camel_case_split(key)
+            # Further splits the key string at each space.
             key_split = ' '.join(key_camel_split).split(' ')
-            key_vectors = list(filter(lambda a: a is not None, map(self.safe_get_vector, key_split)))
-            parent_keys_ext = parent_keys + key_vectors
+            # Joins the |parent_keys| with the strings obtained by splitting the current key.
+            parent_keys_ext = parent_keys + key_split
+            # Joins all strings in |parent_keys_ext| into a string.
+            parent_keys_str = ' '.join(parent_keys_ext)
+            # Vectorizes |parent_keys_ext|.
+            parent_keys_vec = list(filter(lambda a: a is not None, map(self.safe_get_vector, parent_keys_ext)))
             if isinstance(json_in[key], dict):
                 # If the value is a dictionary, we recursively extract pairs from it.
                 ret += self.get_number_context_pairs(json_in[key], parent_keys_ext)
@@ -63,23 +68,24 @@ class VisualizeJson:
                 for elem in json_in[key]:
                     ret += self.get_number_context_pairs({key: elem}, parent_keys)
             if isinstance(json_in[key], str):
-                # TODO: smarter string handling
+                # TODO: Try to handle strings like "29 million" by tokenizing them and searching for numbers.
                 allowed_chars = '0123456789,.%/$E'
                 if (all(map(lambda c: c in allowed_chars, json_in[key])) and
                    any(map(lambda c: c in json_in[key], '0123456789'))):
-                    ret.append((json_in[key], self.mean_of_words(parent_keys_ext), parent_keys_ext))
+                    ret.append((json_in[key], self.mean_of_words(parent_keys_vec), parent_keys_str))
             if isinstance(json_in[key], int) or isinstance(json_in[key], float) or isinstance(json_in[key], bool):
                 # If the value is a number, we can directly append it to ret.
-                ret.append((str(json_in[key]), self.mean_of_words(parent_keys_ext), parent_keys_ext))
+                ret.append((str(json_in[key]), self.mean_of_words(parent_keys_vec), parent_keys_str))
             else:
                 pass
         return ret
 
-    def visualize_one(self, json_in: Dict) -> None:
+    def visualize_one(self, json_in: Dict, show_context: bool = False) -> None:
         """
         Constructs the list of pairs (number, vectorized context), reduces the context vectors dimensionality with t-SNE
         and displays with matplotlib.
         :param json_in: An input json.
+        :param show_context: Whether to display the context string together with each embedded number value.
         """
         triples = self.get_number_context_pairs(json_in)
         triples = list(filter(lambda a: not (np.isnan(a[1])).any(), triples))
@@ -88,15 +94,17 @@ class VisualizeJson:
         fig, ax = plt.subplots()
         ax.scatter(reduced[:, 0], reduced[:, 1])
         for i, txt in enumerate(reduced):
-            ax.annotate(triples[i][2] + ": " + triples[i][0], reduced[i])
+            annotation = triples[i][2] + ": " + triples[i][0] if show_context else triples[i][0]
+            ax.annotate(annotation, reduced[i])
         plt.show()
 
-    def visualize_many(self, jsons_in: List[Dict]) -> None:
+    def visualize_many(self, jsons_in: List[Dict], show_context: bool = False) -> None:
         """
         For each json, constructs the list of pairs (number, vectorized context), reduces them all with t-SNE and
         displays with matplotlib.
 
         :param jsons_in: Input jsons.
+        :param show_context: Whether to display the context string together with each embedded number value.
         """
         def random_color():
             return [np.random.uniform(), np.random.uniform(), np.random.uniform()]
@@ -106,10 +114,9 @@ class VisualizeJson:
         triples = []
         c = []
         for i, json_in in enumerate(jsons_in):
-            pairs = self.get_number_context_pairs(json_in)
-            pairs = list(filter(lambda a: not (np.isnan(a[1])).any(), pairs))
-            triples += list(map(lambda p: (p[0], p[1], i), pairs))
-            c += [colors[i]] * len(pairs)
+            triples = self.get_number_context_pairs(json_in)
+            triples = list(filter(lambda a: not (np.isnan(a[1])).any(), triples))
+            c += [colors[i]] * len(triples)
         only_embeddings = np.array(list(map(lambda a: a[1], triples)))
         reduced = TSNE(perplexity=5.0,
                        verbose=2,
@@ -118,5 +125,6 @@ class VisualizeJson:
         fig, ax = plt.subplots()
         ax.scatter(reduced[:, 0], reduced[:, 1], c=np.array(c))
         for i, txt in enumerate(reduced):
-            ax.annotate(triples[i][2] + ": " + triples[i][0], reduced[i])
+            annotation = triples[i][2] + ": " + triples[i][0] if show_context else triples[i][0]
+            ax.annotate(annotation, reduced[i])
         plt.show()
