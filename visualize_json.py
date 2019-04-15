@@ -70,8 +70,7 @@ class VisualizeJson:
             if isinstance(json_in[key], str):
                 # TODO: Try to handle strings like "29 million" by tokenizing them and searching for numbers.
                 allowed_chars = '0123456789,.%/$E'
-                if (all(map(lambda c: c in allowed_chars, json_in[key])) and
-                   any(map(lambda c: c in json_in[key], '0123456789'))):
+                if all(map(lambda c: c in allowed_chars, json_in[key])):
                     ret.append((json_in[key], self.mean_of_words(parent_keys_vec), parent_keys_str))
             if isinstance(json_in[key], int) or isinstance(json_in[key], float) or isinstance(json_in[key], bool):
                 # If the value is a number, we can directly append it to ret.
@@ -114,9 +113,10 @@ class VisualizeJson:
         triples = []
         c = []
         for i, json_in in enumerate(jsons_in):
-            triples = self.get_number_context_pairs(json_in)
-            triples = list(filter(lambda a: not (np.isnan(a[1])).any(), triples))
-            c += [colors[i]] * len(triples)
+            cur_triples = self.get_number_context_pairs(json_in)
+            cur_triples = list(filter(lambda a: not (np.isnan(a[1])).any(), cur_triples))
+            c += [colors[i]] * len(cur_triples)
+            triples += cur_triples
         only_embeddings = np.array(list(map(lambda a: a[1], triples)))
         reduced = TSNE(perplexity=5.0,
                        verbose=2,
