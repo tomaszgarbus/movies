@@ -50,7 +50,8 @@ class VisualizeJson:
         # TODO: Handle nested objects.
         for key in json_in:
             key_camel_split = camel_case_split(key)
-            key_vectors = list(filter(lambda a: a is not None, map(self.safe_get_vector, key_camel_split)))
+            key_split = ' '.join(key_camel_split).split(' ')
+            key_vectors = list(filter(lambda a: a is not None, map(self.safe_get_vector, key_split)))
             parent_keys_ext = parent_keys + key_vectors
             if isinstance(json_in[key], dict):
                 # If the value is a dictionary, we recursively extract pairs from it.
@@ -82,7 +83,7 @@ class VisualizeJson:
         pairs = self.get_number_context_pairs(json_in)
         pairs = list(filter(lambda a: not (np.isnan(a[1])).any(), pairs))
         only_embeddings = np.array(list(map(lambda a: a[1], pairs)))
-        reduced = TSNE(perplexity=5.0, verbose=2, learning_rate=2.0, n_iter=10000).fit_transform(only_embeddings)
+        reduced = TSNE(perplexity=5.0, verbose=2, learning_rate=20.0, n_iter=10000).fit_transform(only_embeddings)
         fig, ax = plt.subplots()
         ax.scatter(reduced[:, 0], reduced[:, 1])
         for i, txt in enumerate(reduced):
@@ -115,4 +116,3 @@ class VisualizeJson:
         for i, txt in enumerate(reduced):
             ax.annotate(triples[i][0], reduced[i])
         plt.show()
-        raise NotImplemented
