@@ -4,7 +4,7 @@ from dbpedia_helper import DBPediaHelper
 from omdb_download import get_and_cache_movie_json
 from visualize_json import VisualizeJson
 from wiki_articles_download import tokens_list_to_context_json, tokenize_article_text, filter_no_letter_or_digit,\
-    download_article_or_load_from_cache
+    download_article_or_load_from_cache, cut_by_citations
 
 if __name__ == '__main__':
     helper = DBPediaHelper()
@@ -13,6 +13,7 @@ if __name__ == '__main__':
     omdb_json = get_and_cache_movie_json("Star Wars Episode IV")
     print(omdb_json)
     wikipedia_text = download_article_or_load_from_cache("Star_Wars_(film)")
+    wikipedia_text = cut_by_citations(wikipedia_text)
     print(len(wikipedia_text))
 
     def number_heuristic(s: str) -> bool:
@@ -27,7 +28,7 @@ if __name__ == '__main__':
         return any_digit
     wikipedia_tokenized = filter_no_letter_or_digit(tokenize_article_text(wikipedia_text))
     print(len(wikipedia_tokenized))
-    wikipedia_json = tokens_list_to_context_json(wikipedia_tokenized[:500], include_if=number_heuristic)
+    wikipedia_json = tokens_list_to_context_json(wikipedia_tokenized, include_if=number_heuristic)
     print(wikipedia_json)
 
     model = gensim.models.KeyedVectors.load_word2vec_format('./data/GoogleNews-vectors-negative300.bin', binary=True)

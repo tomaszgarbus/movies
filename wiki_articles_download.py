@@ -128,6 +128,18 @@ def filter_no_letter_or_digit(tokenized_article: List[str]) -> List[str]:
     return list(filter(contains_letter_or_digit, tokenized_article))
 
 
+def cut_by_citations(article_text: str) -> str:
+    """
+    Heuristically cuts the article before the "Citations" section. "Heurestically" because it just searches for the
+    first occurrence of the word "Citations" (case matters).
+
+    :param article_text: Text of Wikipedia article. This must be a plain text, not HTML nor markdown.
+    :return: A string - some prefix of provided article text.
+    """
+    citations_pos = article_text.find('Citations')
+    return article_text[:citations_pos] if citations_pos != -1 else article_text
+
+
 if __name__ == '__main__':
     article_text = download_article('Star_Wars_(film)')
     # print(nltk.word_tokenize(article_text))
