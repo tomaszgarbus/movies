@@ -65,7 +65,8 @@ class VisualizeJson:
             if isinstance(json_in[key], str):
                 # TODO: smarter string handling
                 allowed_chars = '0123456789,.%/$E'
-                if all(map(lambda c: c in allowed_chars, json_in[key])):
+                if (all(map(lambda c: c in allowed_chars, json_in[key])) and
+                   any(map(lambda c: c in json_in[key], '0123456789'))):
                     ret.append((json_in[key], self.mean_of_words(parent_keys_ext), parent_keys_ext))
             if isinstance(json_in[key], int) or isinstance(json_in[key], float) or isinstance(json_in[key], bool):
                 # If the value is a number, we can directly append it to ret.
