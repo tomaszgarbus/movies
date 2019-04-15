@@ -1,8 +1,10 @@
-import requests
-from lxml import html
-from typing import Optional, Dict, Callable
 import nltk
 import os
+import requests
+from lxml import html
+from typing import Optional, Dict, Callable, List
+import string
+
 from config import WIKIPEDIA_CACHE_DIR
 
 
@@ -60,6 +62,40 @@ def download_article_or_load_from_cache(resource_name: str) -> Optional[str]:
     return cache_result if cache_result is not None else download_article(resource_name)
 
 
+def tokens_list_to_context_json(tokens: List[str],
+                                window_size = 2,
+                                include_if: Callable[[str], bool] = lambda s: True) -> Dict:
+    """
+    Transforms the tokenized article to a flat json. The keys are possible contexts of width |window_size| * 2.
+    The resulting json consists of key-value pairs context: word, where context is a list of words split by a single
+    space.
+
+    :param tokens: The tokenized article.
+    :param window_size: The width (i.e. number of words) of the context from the left and right side.
+    :param include_if: A function determining for a given word whether it should get a dedicated
+    :return: A Python dictionary, i.e. a representation of a json.
+    """
+    ret = {}
+    for i, w in enumerate(tokens):
+        if not include_if(w):
+            continue
+        context_words = tokens[i - window_size:i] + tokens[i + 1:i + window_size + 1]
+        ret[' '.join(context_words)] = w
+    return ret
+
+
+def tokenize_article_text(article_text: str, filter_fun: Callable[[str], bool] = lambda s: True) -> List[str]:
+    """
+    Tokenizes the article and filters the tokens basing on |filter_fun| function.
+
+    :param article_text: Text of a Wikipedia article. This must be plain text, not HTML nor markdown.
+    :param filter_fun: A function determining for a given word whether it should be included in the list of tokens.
+    :return: A List of strings - (filtered) tokens.
+    """
+    words = nltk.word_tokenize(article_text)
+    return list(filter(filter_fun, words))
+
+
 def article_text_to_context_json(article_text: str,
                                  window_size = 2,
                                  include_if: Callable[[str], bool] = lambda s: True) -> Dict:
@@ -70,17 +106,26 @@ def article_text_to_context_json(article_text: str,
 
     :param article_text: Text of a Wikipedia article. This must be a plain text, not HTML nor markdown.
     :param window_size: The width (i.e. number of words) of the context from the left and right side.
-    :param include_if: A function determining for a given word whether it should get a dedicated
+    :param include_if: A function determining for a given word whether it should get a dedicated key:value pair in
+                       the resulting json.
     :return: A Python dictionary, i.e. a representation of a json.
     """
     words = nltk.word_tokenize(article_text)
-    ret = {}
-    for i, w in enumerate(words):
-        if not include_if(w):
-            continue
-        context_words = words[i - window_size:i] + words[i + 1:i + window_size + 1]
-        ret[' '.join(context_words)] = w
-    return ret
+    return tokens_list_to_context_json(words, window_size, include_if)
+
+
+def filter_no_letter_or_digit(tokenized_article: List[str]) -> List[str]:
+    """
+    Filters the tokenized article by removing those tokens that do not contain any letter nor digit.
+    :param tokenized_article: List of tokens.
+    :return: List of tokens after filtering.
+    """
+    letters_and_digits = string.ascii_letters + string.digits
+
+    def contains_letter_or_digit(s: str) -> bool:
+        return any(map(lambda c: c in letters_and_digits, letters_and_digits))
+
+    return list(filter(contains_letter_or_digit, tokenized_article))
 
 
 if __name__ == '__main__':
