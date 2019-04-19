@@ -11,7 +11,22 @@ import matplotlib.pyplot as plt
 import re
 
 
-def camel_case_split(identifier):
+def _random_color() -> List[float]:
+    """
+    Generates a random color.
+
+    :return: A random color in RGB ([0,1]^3) representation.
+    """
+    return [np.random.uniform(), np.random.uniform(), np.random.uniform()]
+
+
+def _camel_case_split(identifier: str) -> List[str]:
+    """
+    Splits the strings in camelCase.
+
+    :param identifier: The string to split.
+    :return: A list of strings - words resulting from the split.
+    """
     matches = re.finditer('.+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)', identifier)
     return [m.group(0) for m in matches]
 
@@ -49,7 +64,7 @@ class VisualizeJson:
         ret = []
         for key in json_in:
             # Splits the key into multiple words if it is provided as a camelCase.
-            key_camel_split = camel_case_split(key)
+            key_camel_split = _camel_case_split(key)
             # Further splits the key string at each space.
             key_split = ' '.join(key_camel_split).split(' ')
             # Joins the |parent_keys| with the strings obtained by splitting the current key.
@@ -105,10 +120,8 @@ class VisualizeJson:
         :param jsons_in: Input jsons.
         :param show_context: Whether to display the context string together with each embedded number value.
         """
-        def random_color():
-            return [np.random.uniform(), np.random.uniform(), np.random.uniform()]
         # Each json gets its own random color for points visualization.
-        colors = [random_color() for _ in jsons_in]
+        colors = [_random_color() for _ in jsons_in]
 
         triples = []
         c = []

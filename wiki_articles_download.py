@@ -140,6 +140,23 @@ def cut_by_citations(article_text: str) -> str:
     return article_text[:citations_pos] if citations_pos != -1 else article_text
 
 
+def number_heuristic(s: str) -> bool:
+    """
+    A heuristic meant to be used as an argument for filtering json keys.
+
+    :param s: A key candidate.
+    :return: True iff |s| should be treated as a number.
+    """
+    allowed_chars = '0123456789,.%/$E'
+    any_digit = False
+    for c in s:
+        if c.isdigit():
+            any_digit = True
+        if c not in allowed_chars:
+            return False
+    return any_digit
+
+
 if __name__ == '__main__':
     article_text = download_article('Star_Wars_(film)')
     # print(nltk.word_tokenize(article_text))
