@@ -48,3 +48,14 @@ def get_and_cache_movie_json(title: str) -> Dict:
     json_response = rsp.json()
     cache_movie_json(title, json_response)
     return json_response
+
+
+def preprocess_movie_json(json_dict: Dict) -> Dict:
+    """
+    Preprocesses the movie json from OMDb API to optimize the resulting contexts for vectorization.
+
+    :param json_dict: A dictionary representation of Json.
+    :return: Altered input json.
+    """
+    json_dict['Ratings'] = list(map(lambda elem: {elem['Source']: elem['Value']}, json_dict['Ratings']))
+    return json_dict
