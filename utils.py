@@ -23,7 +23,7 @@ def number_heuristic(s: str) -> bool:
     :param s: A key candidate.
     :return: True iff |s| should be treated as a number.
     """
-    allowed_chars = '0123456789,.%/$E'
+    allowed_chars = '0123456789,./$E'
     any_digit = False
     for c in s:
         if c.isdigit():
