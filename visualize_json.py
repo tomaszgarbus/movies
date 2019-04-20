@@ -165,7 +165,6 @@ class VisualizeJson:
             triples += cur_triples
         only_embeddings = np.array(list(map(lambda a: a[1], triples)))
         reduced = TSNE(perplexity=5.0,
-                       verbose=2,
                        learning_rate=2.0,
                        n_iter=10000).fit_transform(only_embeddings)
         fig, ax = plt.subplots()
@@ -176,16 +175,16 @@ class VisualizeJson:
         plt.show()
 
     def k_closest_contexts(self, context_vec: np.ndarray, candidates: List[NumberContext], k: int = 5)\
-            -> List[NumberContext]:
+            -> List[Tuple[NumberContext, float]]:
         """
         For a given vectorized context, finds k closest (number, context) pairs.
 
         :param context_vec: Vectorized context.
         :param candidates: List of candidate pairs.
         :param k: k
-        :return: A subset of |candidates| of length min(k, len(candidates)).
+        :return: A subset of |candidates| of length min(k, len(candidates)), zipped with embeddings similarity.
         """
         sim_candidates = list(map(lambda cand: (embeddings_sim(context_vec, cand[1]), cand),
                                   candidates))
-        results = sorted(sim_candidates, key=lambda p: p[0])[:k]
-        return list(map(lambda a: a[1], results))
+        results = sorted(sim_candidates, key=lambda p: p[0], reverse=True)[:k]
+        return list(map(lambda a: (a[1], a[0]), results))
