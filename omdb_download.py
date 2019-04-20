@@ -58,4 +58,7 @@ def preprocess_movie_json(json_dict: Dict) -> Dict:
     :return: Altered input json.
     """
     json_dict['Ratings'] = list(map(lambda elem: {elem['Source']: elem['Value']}, json_dict['Ratings']))
+    for obj in json_dict['Ratings']:
+        if 'Metacritic' in obj:
+            obj['Metacritic'] = ' / '.join(obj['Metacritic'].split('/'))
     return json_dict
