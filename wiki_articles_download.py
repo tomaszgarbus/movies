@@ -8,6 +8,18 @@ import string
 from config import WIKIPEDIA_CACHE_DIR
 
 
+def _contains_letter_or_digit(s: str) -> bool:
+    """
+    Decides whether |s| contains some alphanumeric character. Meant for use when filtering created tokens during
+    tokenizing.
+
+    :param s: A single string token.
+    :return: True iff there is at least one alphanumeric character in |s|.
+    """
+    letters_and_digits = string.ascii_letters + string.digits
+    return any(map(lambda c: c in s, letters_and_digits))
+
+
 def download_article(resource_name: str) -> Optional[str]:
     """
     Downloads the full Wikipedia article for the given resource name.
@@ -59,7 +71,12 @@ def download_article_or_load_from_cache(resource_name: str) -> Optional[str]:
     :return: Either a string with article in plain text (no HTML nor markdown) or None if none could have been obtained.
     """
     cache_result = load_article_from_cache(resource_name)
-    return cache_result if cache_result is not None else download_article(resource_name)
+    if cache_result is None:
+        article = download_article(resource_name)
+        store_article_to_cache(resource_name, article)
+        return article
+    else:
+        return cache_result
 
 
 def tokens_list_to_context_json(tokens: List[str],
@@ -72,6 +89,7 @@ def tokens_list_to_context_json(tokens: List[str],
 
     :param tokens: The tokenized article.
     :param window_size: The width (i.e. number of words) of the context from the left and right side.
+    :param limit_
     :param include_if: A function determining for a given word whether it should get a dedicated
     :return: A Python dictionary, i.e. a representation of a json.
     """
@@ -120,17 +138,21 @@ def filter_no_letter_or_digit(tokenized_article: List[str]) -> List[str]:
     :param tokenized_article: List of tokens.
     :return: List of tokens after filtering.
     """
-    letters_and_digits = string.ascii_letters + string.digits
+    return list(filter(_contains_letter_or_digit, tokenized_article))
 
-    def contains_letter_or_digit(s: str) -> bool:
-        return any(map(lambda c: c in s, letters_and_digits))
 
-    return list(filter(contains_letter_or_digit, tokenized_article))
+def tokenize_and_filter_no_alphanumeric(article_text: str) -> List[str]:
+    """
+    Tokenizes the article and filters out the tokens that do not contain any letter nor digit.
+    :param article_text:
+    :return:
+    """
+    return tokenize_article_text(article_text, filter_fun=_contains_letter_or_digit)
 
 
 def cut_by_citations(article_text: str) -> str:
     """
-    Heuristically cuts the article before the "Citations" section. "Heurestically" because it just searches for the
+    Heuristically cuts the article before the "Citations" section. "Heuristically" because it just searches for the
     first occurrence of the word "Citations" (case matters).
 
     :param article_text: Text of Wikipedia article. This must be a plain text, not HTML nor markdown.
@@ -138,23 +160,6 @@ def cut_by_citations(article_text: str) -> str:
     """
     citations_pos = article_text.find('Citations')
     return article_text[:citations_pos] if citations_pos != -1 else article_text
-
-
-def number_heuristic(s: str) -> bool:
-    """
-    A heuristic meant to be used as an argument for filtering json keys.
-
-    :param s: A key candidate.
-    :return: True iff |s| should be treated as a number.
-    """
-    allowed_chars = '0123456789,.%/$E'
-    any_digit = False
-    for c in s:
-        if c.isdigit():
-            any_digit = True
-        if c not in allowed_chars:
-            return False
-    return any_digit
 
 
 if __name__ == '__main__':
