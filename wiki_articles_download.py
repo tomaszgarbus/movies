@@ -4,6 +4,7 @@ import requests
 from lxml import html
 from typing import Optional, Dict, Callable, List
 import string
+import re
 
 from config import WIKIPEDIA_CACHE_DIR
 
@@ -162,9 +163,21 @@ def cut_by_citations(article_text: str) -> str:
     return article_text[:citations_pos] if citations_pos != -1 else article_text
 
 
+def preprocess_wiki_article(article_text: str) -> str:
+    """
+    Preprocesses the article text for optimized jsonization.
+
+    :param article_text: Text of Wikipedia article. This must be a plain text, not HTML nor markdown.
+    :return: A string - altered |article_text|.
+    """
+    article_text = cut_by_citations(article_text)
+    article_text = re.sub("Running time", "Running time ", article_text)
+    return article_text
+
+
 if __name__ == '__main__':
-    article_text = download_article('Star_Wars_(film)')
+    artext = download_article('Star_Wars_(film)')
     # print(nltk.word_tokenize(article_text))
     # print(download_article("Star_Wars_(film)"))
-    print(article_text_to_context_json(article_text))
+    print(article_text_to_context_json(artext))
 

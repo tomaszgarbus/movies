@@ -4,8 +4,8 @@ import csv
 from config import PRETRAINED_W2V_PATH, MOVIES_TO_FETCH_PATH
 from omdb_download import get_and_cache_movie_json, preprocess_movie_json
 from visualize_json import VisualizeJson
-from wiki_articles_download import tokens_list_to_context_json, download_article_or_load_from_cache, cut_by_citations,\
-    tokenize_article_text
+from wiki_articles_download import tokens_list_to_context_json, download_article_or_load_from_cache,\
+    preprocess_wiki_article, tokenize_article_text
 from utils import number_heuristic
 
 
@@ -22,7 +22,7 @@ def compare_omdb_with_wiki(json_viz: VisualizeJson, wiki_window_size=10):
 
         omdb_json = preprocess_movie_json(get_and_cache_movie_json(omdb_query))
         wikipedia_text = download_article_or_load_from_cache(pedia_resource)
-        wikipedia_text = cut_by_citations(wikipedia_text)
+        wikipedia_text = preprocess_wiki_article(wikipedia_text)
         wikipedia_tokenized = tokenize_article_text(wikipedia_text)
         # tokens_lim = 1500
         wikipedia_json = tokens_list_to_context_json(wikipedia_tokenized,
@@ -55,7 +55,7 @@ def compare_wiki_articles(json_viz: VisualizeJson, wiki_window_size=10):
         pedia_resource = row[2]
 
         wikipedia_text = download_article_or_load_from_cache(pedia_resource)
-        wikipedia_text = cut_by_citations(wikipedia_text)
+        wikipedia_text = preprocess_wiki_article(wikipedia_text)
         wikipedia_tokenized = tokenize_article_text(wikipedia_text)
         wikipedia_json = tokens_list_to_context_json(wikipedia_tokenized,
                                                      window_size=wiki_window_size,
