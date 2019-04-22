@@ -6,7 +6,7 @@ from typing import Optional, Dict, Callable, List
 import string
 import re
 
-from config import WIKIPEDIA_CACHE_DIR
+from constants import WIKIPEDIA_CACHE_DIR
 
 
 def _contains_letter_or_digit(s: str) -> bool:

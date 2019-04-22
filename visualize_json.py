@@ -14,7 +14,7 @@ from nltk import tokenize
 from utils import number_heuristic
 
 # Type alias for (number, vectorized context, raw context).
-# TODO: split raw context into left and right maybe?
+# TODO: consider splitting raw context into left and right side.
 NumberContext = Tuple[str, np.ndarray, str]
 
 
@@ -52,6 +52,14 @@ class VisualizeJson:
         try:
             return self.w2v_model.get_vector(word)
         except KeyError:
+            if number_heuristic(word):
+                # The GoogleNews-trained vectors do not contain embeddings for numbers (well, most of them), but they
+                # do contain embeddings for '#', '##', ... '#' * 14, which for now I will assume are placeholders for
+                # numbers of different representation lengths.
+                # TODO: consider generating new random vectors for unknown numbers (ideally, in a deterministic way
+                #       so that they don't need to be stored), e.g. seed for random generator can be the provided
+                #       number.
+                return self.safe_get_vector('#' * len(word))
             return None
 
     def safe_get_vectors(self, words: List[str]) -> List[np.ndarray]:
@@ -63,7 +71,14 @@ class VisualizeJson:
         """
         return list(filter(lambda a: a is not None, map(self.safe_get_vector, words)))
 
-    def mean_of_words(self, words: List[np.ndarray]):
+    def mean_of_words(self, words: List[np.ndarray]) -> Optional[np.ndarray]:
+        """
+        Provided a list of word embeddings, returns a single vector of the same dimensionality, by calculating
+        elementwise mean, or None if the provided list is empty. TODO: support weighted mean.
+
+        :param words: A list of word vectors.
+        :return: A single vector or None.
+        """
         if not words:
             return None
         # TODO: weighted mean

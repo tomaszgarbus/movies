@@ -2,7 +2,7 @@ import requests
 import json
 import os
 from typing import Dict, Optional
-from config import OMDB_API_KEY, OMDB_JSONS_DIR
+from constants import OMDB_API_KEY, OMDB_JSONS_DIR
 
 
 def cache_movie_json(title: str, json_response: Dict) -> None:

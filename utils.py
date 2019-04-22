@@ -1,6 +1,6 @@
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
-from config import W2V_DIM
+from constants import W2V_DIM
 
 
 def embeddings_sim(vec1: np.ndarray, vec2: np.ndarray, dim: int = W2V_DIM) -> float:

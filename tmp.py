@@ -1,8 +1,8 @@
 import gensim
 import csv
-from typing import List
+from typing import Iterable
 
-from config import PRETRAINED_W2V_PATH, MOVIES_TO_FETCH_PATH
+from constants import PRETRAINED_W2V_PATH, MOVIES_TO_FETCH_PATH
 from omdb_download import get_and_cache_movie_json, preprocess_movie_json
 from visualize_json import VisualizeJson
 from wiki_articles_download import tokens_list_to_context_json, download_article_or_load_from_cache,\
@@ -24,8 +24,8 @@ def compare_omdb_with_wiki(json_viz: VisualizeJson, wiki_window_size=10) -> None
 
     for row in csv_rows:
         print("Row id: " + str(row[0]))
-        omdb_query = row[1]
-        pedia_resource = row[2]
+        omdb_query = row[2]
+        pedia_resource = row[3]
 
         omdb_json = preprocess_movie_json(get_and_cache_movie_json(omdb_query))
         wikipedia_text = download_article_or_load_from_cache(pedia_resource)
@@ -49,8 +49,8 @@ def compare_omdb_with_wiki(json_viz: VisualizeJson, wiki_window_size=10) -> None
                                 limit_per_json=50)
 
 
-def compare_omdb_with_wiki_multi_window_sizes(json_viz: VisualizeJson,  # TODO: make the default argument immutable
-                                              wiki_window_sizes: List[int] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) -> None:
+def compare_omdb_with_wiki_multi_window_sizes(json_viz: VisualizeJson,
+                                              wiki_window_sizes: Iterable[int] = tuple(range(1, 11))) -> None:
     """
     Compares OMDb jsons with jsonized Wikipedia articles, using t-SNE visualizations of context embeddings as well as
     finding closest contexts to each number found in |json_viz|.
@@ -65,8 +65,8 @@ def compare_omdb_with_wiki_multi_window_sizes(json_viz: VisualizeJson,  # TODO: 
 
     for row in csv_rows:
         print("Row id: " + str(row[0]))
-        omdb_query = row[1]
-        pedia_resource = row[2]
+        omdb_query = row[2]
+        pedia_resource = row[3]
 
         omdb_json = preprocess_movie_json(get_and_cache_movie_json(omdb_query))
         wikipedia_text = download_article_or_load_from_cache(pedia_resource)
@@ -110,7 +110,7 @@ def compare_wiki_articles(json_viz: VisualizeJson, wiki_window_size=10) -> None:
 
     for row in csv_rows:
         print("Row id: " + str(row[0]))
-        pedia_resource = row[2]
+        pedia_resource = row[3]
 
         wikipedia_text = download_article_or_load_from_cache(pedia_resource)
         wikipedia_text = preprocess_wiki_article(wikipedia_text)
@@ -134,11 +134,53 @@ def compare_wiki_articles(json_viz: VisualizeJson, wiki_window_size=10) -> None:
         print()
 
 
+def locate_omdb_values(json_viz: VisualizeJson,
+                       wiki_window_sizes: Iterable[int] = tuple(range(1, 11))) -> None:
+    """
+    For each movie listed in the csv file at MOVIES_TO_FETCH_PATH (see constants.py), iterates through all fields in
+    the OMDb json an tries to locate the same value in a Wikipedia context. Displays results on standard output.
+
+    :param json_viz: An instance of VisualizeJson object.
+    :param wiki_window_sizes: Radiuses of context windows for Wikipedia.
+    """
+    with open(MOVIES_TO_FETCH_PATH, 'r') as movies_csv:
+        reader = csv.reader(movies_csv, delimiter=',', )
+        csv_rows = [row for row in reader][1:]
+
+    for row in csv_rows:
+        print("Processing movie: " + row[0])
+        omdb_query = row[2]
+        pedia_resource = row[3]
+
+        omdb_json = preprocess_movie_json(get_and_cache_movie_json(omdb_query))
+        wikipedia_text = download_article_or_load_from_cache(pedia_resource)
+        wikipedia_text = preprocess_wiki_article(wikipedia_text)
+        wikipedia_tokenized = tokenize_article_text(wikipedia_text)
+        wikipedia_json = {}
+        for window_size in wiki_window_sizes:
+            tmp_wiki_json = tokens_list_to_context_json(wikipedia_tokenized,
+                                                        window_size=window_size,
+                                                        include_if=number_heuristic)
+            wikipedia_json = {**wikipedia_json, **tmp_wiki_json}
+
+        omdb_pairs = json_viz.get_number_context_pairs(omdb_json)
+        wiki_pairs = json_viz.get_number_context_pairs(wikipedia_json)
+        for (num, convec, conraw) in omdb_pairs:
+            closest_wiki = json_viz.k_closest_contexts(convec, wiki_pairs, k=15)
+            print("number:", num, "context:", conraw)
+            print('\n'.join(list(map(lambda a: str((a[1], a[0][0], a[0][2])), closest_wiki))))
+            print()
+
+        json_viz.visualize_many([omdb_json, wikipedia_json],
+                                show_context=False,
+                                limit_per_json=50)
+
+
 if __name__ == '__main__':
     model = gensim.models.KeyedVectors.load_word2vec_format(PRETRAINED_W2V_PATH, binary=True)
     print("w2v model loaded successfully")
 
-    json_viz = VisualizeJson(model)
+    json_vis = VisualizeJson(model)
     # compare_omdb_with_wiki()
 
 
