@@ -1,7 +1,7 @@
-id,omdb query,wikipedia resource
-1,star wars episode iv,Star_Wars_(film)
-2,star wars episode v,The_Empire_Strikes_Back
-3,star wars episode vi,Return_of_the_Jedi
-4,star wars episode i,Star_Wars:_Episode_I_–_The_Phantom_Menace
-5,star wars episode ii,Star_Wars:_Episode_II_–_Attack_of_the_Clones
-6,star wars episode iii,Star_Wars:_Episode_III_–_Revenge_of_the_Sith
+id,name,omdb query,wikipedia resource
+1,Star Wars IV,star wars episode iv,Star_Wars_(film)
+2,Star Wars V,star wars episode v,The_Empire_Strikes_Back
+3,Star Wars VI,star wars episode vi,Return_of_the_Jedi
+4,Star Wars I,star wars episode i,Star_Wars:_Episode_I_–_The_Phantom_Menace
+5,Star Wars II,star wars episode ii,Star_Wars:_Episode_II_–_Attack_of_the_Clones
+6,Star Wars III,star wars episode iii,Star_Wars:_Episode_III_–_Revenge_of_the_Sith
