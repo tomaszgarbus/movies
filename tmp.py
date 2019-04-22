@@ -148,7 +148,7 @@ def locate_omdb_values(json_viz: VisualizeJson,
         csv_rows = [row for row in reader][1:]
 
     for row in csv_rows:
-        print("Processing movie: " + row[0])
+        print("Processing movie: " + row[1])
         omdb_query = row[2]
         pedia_resource = row[3]
 
@@ -168,12 +168,13 @@ def locate_omdb_values(json_viz: VisualizeJson,
         for (num, convec, conraw) in omdb_pairs:
             closest_wiki = json_viz.k_closest_contexts(convec, wiki_pairs, k=15)
             print("number:", num, "context:", conraw)
-            print('\n'.join(list(map(lambda a: str((a[1], a[0][0], a[0][2])), closest_wiki))))
+            print("Wikipedia context candidates:")
+            closest_wiki = list(filter(lambda a: a[0][0] == num, closest_wiki))
+            if closest_wiki:
+                print('\n'.join(list(map(lambda a: str((a[1], a[0][0], a[0][2])), closest_wiki))))
+            else:
+                print("None found")
             print()
-
-        json_viz.visualize_many([omdb_json, wikipedia_json],
-                                show_context=False,
-                                limit_per_json=50)
 
 
 if __name__ == '__main__':
