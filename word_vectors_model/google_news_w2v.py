@@ -40,6 +40,14 @@ class GoogleNewsW2V(ModelBase):
                 return self._safe_get_vector('#' * len(word))
             return None
 
+    def dim(self) -> int:
+        """
+        The dimensionality of used W2V embeddings.
+
+        :return: 300, for now (#TODO)
+        """
+        return 300
+
     def _safe_get_vectors(self, words: List[str]) -> List[np.ndarray]:
         """
         Returns the list of word vectors for all known words in |words| (note that the list may be empty).

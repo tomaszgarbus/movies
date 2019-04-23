@@ -11,6 +11,14 @@ class ModelBase:
     def __init__(self):
         pass
 
+    def dim(self) -> int:
+        """
+        Returns the dimensionality of model's word vectors.
+
+        :return: A single number.
+        """
+        raise NotImplementedError()
+
     def get_word_vector(self, word: str) -> Optional[np.ndarray]:
         """
         Gets the word vector for given word. Returns None if such word is not present in the model's dictionary.

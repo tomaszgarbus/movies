@@ -19,6 +19,14 @@ class FlairPretrained(ModelBase):
             FlairEmbeddings('news-backward-fast'),
         ])
 
+    def dim(self) -> int:
+        """
+        The dimensionality of created embeddings.
+
+        :return: 2048 (for now, #TODO)
+        """
+        return 2048
+
     def get_word_vector(self, word: str) -> Optional[np.ndarray]:
         """
         Returns the word vector for word |word| or None. It is discouraged to use this method as it invalidates the

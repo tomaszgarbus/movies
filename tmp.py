@@ -1,13 +1,13 @@
-import gensim
 import csv
 from typing import Iterable
 
-from constants import PRETRAINED_W2V_PATH, MOVIES_TO_FETCH_PATH
+from constants import MOVIES_TO_FETCH_PATH
 from omdb_download import get_and_cache_movie_json, preprocess_movie_json
-from visualize_json import VisualizeJson
-from wiki_articles_download import tokens_list_to_context_json, download_article_or_load_from_cache,\
-    preprocess_wiki_article, tokenize_article_text
 from utils import number_heuristic
+from visualize_json import VisualizeJson
+from wiki_articles_download import tokens_list_to_context_json, download_article_or_load_from_cache, \
+    preprocess_wiki_article, tokenize_article_text
+from word_vectors_model.flair_pretrained import FlairPretrained
 
 
 def compare_omdb_with_wiki(json_viz: VisualizeJson, wiki_window_size=10) -> None:
@@ -178,9 +178,10 @@ def locate_omdb_values(json_viz: VisualizeJson,
 
 
 if __name__ == '__main__':
-    model = gensim.models.KeyedVectors.load_word2vec_format(PRETRAINED_W2V_PATH, binary=True)
-    print("w2v model loaded successfully")
+    # model = gensim.models.KeyedVectors.load_word2vec_format(PRETRAINED_W2V_PATH, binary=True)
+    # print("w2v model loaded successfully")
 
+    model = FlairPretrained()
     json_vis = VisualizeJson(model)
     # compare_omdb_with_wiki()
 

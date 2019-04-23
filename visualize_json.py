@@ -155,7 +155,7 @@ class VisualizeJson:
         :param k: k
         :return: A subset of |candidates| of length min(k, len(candidates)), zipped with embeddings similarity.
         """
-        sim_candidates = list(map(lambda cand: (embeddings_sim(context_vec, cand[1]), cand),
+        sim_candidates = list(map(lambda cand: (embeddings_sim(context_vec, cand[1], self.model.dim()), cand),
                                   candidates))
         results = sorted(sim_candidates, key=lambda p: p[0], reverse=True)[:k]
         return list(map(lambda a: (a[1], a[0]), results))
