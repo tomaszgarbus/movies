@@ -37,10 +37,10 @@ class GoogleNewsW2V(ModelBase):
                 # TODO: consider generating new random vectors for unknown numbers (ideally, in a deterministic way
                 #       so that they don't need to be stored), e.g. seed for random generator can be the provided
                 #       number.
-                return self.safe_get_vector('#' * len(word))
+                return self._safe_get_vector('#' * len(word))
             return None
 
-    def get_vector(self, word: str) -> Optional[np.ndarray]:
+    def get_word_vector(self, word: str) -> Optional[np.ndarray]:
         """
         Returns the word vector for |word| or None if the word is not in vocabulary of the w2v model.
 
@@ -48,3 +48,4 @@ class GoogleNewsW2V(ModelBase):
         :return: Embedding or None.
         """
         return self._safe_get_vector(word)
+

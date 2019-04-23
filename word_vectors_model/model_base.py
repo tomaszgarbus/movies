@@ -11,7 +11,7 @@ class ModelBase:
     def __init__(self):
         pass
 
-    def get_vector(self, word: str) -> Optional[np.ndarray]:
+    def get_word_vector(self, word: str) -> Optional[np.ndarray]:
         """
         Gets the word vector for given word. Returns None if such word is not present in the model's dictionary.
 
