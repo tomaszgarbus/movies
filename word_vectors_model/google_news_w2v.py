@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 import numpy as np
 from word_vectors_model.model_base import ModelBase
@@ -40,12 +40,41 @@ class GoogleNewsW2V(ModelBase):
                 return self._safe_get_vector('#' * len(word))
             return None
 
+    def _safe_get_vectors(self, words: List[str]) -> List[np.ndarray]:
+        """
+        Returns the list of word vectors for all known words in |words| (note that the list may be empty).
+
+        :param words: List of words for which the vectors should be fetched.
+        :return: List of embeddings for known words.
+        """
+        return list(filter(lambda a: a is not None, map(self._safe_get_vector, words)))
+
+    def get_word_vectors(self, words: List[str]) -> List[np.ndarray]:
+        """
+        Vectorizes the list of words. If a word is not present in GoogleNews dictionary, it is ignored.
+
+        :param words: List of words to vectorize.
+        :return: List of word vectors.
+        """
+        return self._safe_get_vectors(words)
+
     def get_word_vector(self, word: str) -> Optional[np.ndarray]:
         """
         Returns the word vector for |word| or None if the word is not in vocabulary of the w2v model.
 
-        :param word: word.
+        :param word: The word to vectorize.
         :return: Embedding or None.
         """
         return self._safe_get_vector(word)
+
+    def vectorize_context(self, words: List[str]) -> Optional[np.ndarray]:
+        """
+        Vectorizes the context, provided as a list of words, by vectorizing each word and averaging the vectors. In some
+        cases may return None (e.g. if all words failed to vectorize or there weren't any).
+
+        :param words: List of words describing the context.
+        :return: A single vector or None.
+        """
+        return self.mean_of_words(self.get_word_vectors(words))
+
 
