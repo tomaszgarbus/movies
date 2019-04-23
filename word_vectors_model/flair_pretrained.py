@@ -5,13 +5,13 @@ from flair.embeddings import FlairEmbeddings, WordEmbeddings, StackedEmbeddings,
 from word_vectors_model.model_base import ModelBase
 
 
-class ElmoPretrained(ModelBase):
+class FlairPretrained(ModelBase):
     """
     Encapsulates pretrained Flair Embeddings (Zalando Flair) by conforming to the ModelBase interface.
     """
 
     def __init__(self):
-        super(ElmoPretrained, self).__init__()
+        super(FlairPretrained, self).__init__()
 
         # TODO: make this configurable via constructor parameters.
         self.model = StackedEmbeddings([
