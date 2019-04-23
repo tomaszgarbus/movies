@@ -3,15 +3,16 @@ A temporary class for visualizing Jsons with matplotlib.
 First we create a list of (number, context) pairs, where context is vectorized, then use t-SNE to visualize it on a 2D
 plane.
 """
-from typing import List, Tuple, Dict, Optional
-import numpy as np
-import gensim
-from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
+import numpy as np
 import re
-from utils import embeddings_sim
 from nltk import tokenize
+from sklearn.manifold import TSNE
+from typing import List, Tuple, Dict, Optional
+
+from utils import embeddings_sim
 from utils import number_heuristic
+from word_vectors_model.model_base import ModelBase
 
 # Type alias for (number, vectorized context, raw context).
 # TODO: consider splitting raw context into left and right side.
@@ -39,50 +40,8 @@ def _camel_case_split(identifier: str) -> List[str]:
 
 
 class VisualizeJson:
-    def __init__(self, w2v_model: gensim.models.KeyedVectors):
-        self.w2v_model = w2v_model
-
-    def safe_get_vector(self, word: str) -> Optional[np.ndarray]:
-        """
-        Returns the word vector for |word| or None if the word is not in vocabulary of the w2v model.
-
-        :param word: word.
-        :return: Embedding or None.
-        """
-        try:
-            return self.w2v_model.get_vector(word)
-        except KeyError:
-            if number_heuristic(word):
-                # The GoogleNews-trained vectors do not contain embeddings for numbers (well, most of them), but they
-                # do contain embeddings for '#', '##', ... '#' * 14, which for now I will assume are placeholders for
-                # numbers of different representation lengths.
-                # TODO: consider generating new random vectors for unknown numbers (ideally, in a deterministic way
-                #       so that they don't need to be stored), e.g. seed for random generator can be the provided
-                #       number.
-                return self.safe_get_vector('#' * len(word))
-            return None
-
-    def safe_get_vectors(self, words: List[str]) -> List[np.ndarray]:
-        """
-        Returns the list of word vectors for all known words in |words| (note that the list may be empty).
-
-        :param words: List of words for which the vectors should be fetched.
-        :return: List of embeddings for known words.
-        """
-        return list(filter(lambda a: a is not None, map(self.safe_get_vector, words)))
-
-    def mean_of_words(self, words: List[np.ndarray]) -> Optional[np.ndarray]:
-        """
-        Provided a list of word embeddings, returns a single vector of the same dimensionality, by calculating
-        elementwise mean, or None if the provided list is empty. TODO: support weighted mean.
-
-        :param words: A list of word vectors.
-        :return: A single vector or None.
-        """
-        if not words:
-            return None
-        # TODO: weighted mean
-        return np.mean(words, axis=0)
+    def __init__(self, model: ModelBase):
+        self.model = model
 
     def get_number_context_pairs(self, json_in: Dict, parent_keys: List[str] = None) -> List[NumberContext]:
         """
@@ -106,9 +65,7 @@ class VisualizeJson:
             # Joins all strings in |parent_keys_ext| into a string.
             parent_keys_str = ' '.join(parent_keys_ext)
             # Vectorizes |parent_keys_ext|.
-            parent_keys_vec = self.safe_get_vectors(parent_keys_ext)
-            # Vectorized context.
-            context_vec = self.mean_of_words(parent_keys_vec)
+            context_vec = self.model.vectorize_context(parent_keys_ext)
             if isinstance(json_in[key], dict):
                 # If the value is a dictionary, we recursively extract pairs from it.
                 ret += self.get_number_context_pairs(json_in[key], parent_keys_ext)
@@ -129,8 +86,7 @@ class VisualizeJson:
                     for i, t in enumerate(tokens):
                         if number_heuristic(t):
                             local_context_str = parent_keys_ext + tokens[:i] + tokens[i+1:]
-                            local_context_vecs = self.safe_get_vectors(local_context_str)
-                            local_context_vec = self.mean_of_words(local_context_vecs)
+                            local_context_vec = self.model.vectorize_context(local_context_str)
                             if local_context_vec is not None:
                                 ret.append((t, local_context_vec, ' '.join(local_context_str)))
             if ((isinstance(json_in[key], int) or isinstance(json_in[key], float) or isinstance(json_in[key], bool))
