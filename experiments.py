@@ -178,17 +178,24 @@ def locate_omdb_values_single_movie(json_viz: VisualizeJson,
 
 
 def locate_omdb_values(json_viz: VisualizeJson,
-                       wiki_window_sizes: Iterable[int] = tuple(range(1, 11))) -> None:
+                       wiki_window_sizes: Iterable[int] = tuple(range(1, 11)),
+                       verbose=True)\
+        -> List[Tuple[str, List[Tuple[NumberContext, List[NumberContext]]]]]:
     """
     For each movie listed in the csv file at MOVIES_TO_FETCH_PATH (see constants.py), iterates through all fields in
     the OMDb json and tries to locate the same value in a Wikipedia context. Displays results on standard output.
 
     :param json_viz: An instance of VisualizeJson object.
     :param wiki_window_sizes: Radii of context windows for Wikipedia.
+    :param verbose: Whether to display found pairs.
+    :return: Returns a list of pairs (movie title, list of matches for movie). For the description of the second element
+             refer to `locate_omdb_values_single_movie`.
     """
     with open(MOVIES_TO_FETCH_PATH, 'r') as movies_csv:
         reader = csv.reader(movies_csv, delimiter=',', )
         csv_rows = [row for row in reader][1:]
+
+    result = []
 
     for row in csv_rows:
         print("Processing movie: " + row[1])
@@ -199,12 +206,16 @@ def locate_omdb_values(json_viz: VisualizeJson,
                                                   omdb_query=omdb_query,
                                                   pedia_resource=pedia_resource,
                                                   wiki_window_sizes=wiki_window_sizes)
+        if verbose:
+            for ((num, convec, conraw), closest_wiki) in matches:
+                print("number:", num, "context:", conraw)
+                print("Wikipedia context candidates:")
+                if closest_wiki:
+                    print('\n'.join(list(map(lambda a: str((a[1], a[0][0], a[0][2])), closest_wiki))))
+                    print()
+                else:
+                    print("None found")
+                    print()
 
-        for ((num, convec, conraw), closest_wiki) in matches:
-            print("number:", num, "context:", conraw)
-            print("Wikipedia context candidates:")
-            if closest_wiki:
-                print('\n'.join(list(map(lambda a: str((a[1], a[0][0], a[0][2])), closest_wiki))))
-            else:
-                print("None found")
-            print()
+        result.append((row[1], matches))
+    return result

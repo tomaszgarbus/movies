@@ -1,5 +1,6 @@
 from visualize_json import VisualizeJson
 from word_vectors_model.bert_pretrained import BertPretrained
+from experiments import *
 
 if __name__ == '__main__':
     # model = gensim.models.KeyedVectors.load_word2vec_format(PRETRAINED_W2V_PATH, binary=True)
