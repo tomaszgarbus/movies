@@ -1,10 +1,9 @@
 """
 Provides an abstraction level over DBPedia infoboxes properties dataset.
 """
-import re
 import os
+import re
 from tqdm import tqdm
-import rdflib
 from typing import Dict
 
 

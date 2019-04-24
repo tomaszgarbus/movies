@@ -1,5 +1,6 @@
-from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+
 from constants import W2V_DIM
 
 

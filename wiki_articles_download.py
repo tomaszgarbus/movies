@@ -1,10 +1,10 @@
 import nltk
 import os
+import re
 import requests
+import string
 from lxml import html
 from typing import Optional, Dict, Callable, List
-import string
-import re
 
 from constants import WIKIPEDIA_CACHE_DIR
 

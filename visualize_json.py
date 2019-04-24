@@ -8,7 +8,7 @@ import numpy as np
 import re
 from nltk import tokenize
 from sklearn.manifold import TSNE
-from typing import List, Tuple, Dict, Optional
+from typing import List, Tuple, Dict
 
 from utils import embeddings_sim
 from utils import number_heuristic

@@ -7,7 +7,6 @@ from utils import number_heuristic
 from visualize_json import VisualizeJson, NumberContext
 from wiki_articles_download import tokens_list_to_context_json, download_article_or_load_from_cache, \
     preprocess_wiki_article, tokenize_article_text
-from word_vectors_model.bert_pretrained import BertPretrained
 
 
 def compare_omdb_with_wiki(json_viz: VisualizeJson, wiki_window_size=10) -> None:

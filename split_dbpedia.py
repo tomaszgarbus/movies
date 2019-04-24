@@ -3,9 +3,9 @@ Splits data/dbpedia_infobox/infobox_properties_mapped_en.tql into multiple files
 
 Places the resulting files in data/dbpedia_infobox/split/.
 """
-from tqdm import tqdm
 import os
 import re
+from tqdm import tqdm
 
 INPUT_FILE = 'data/dbpedia_infobox/infobox_properties_mapped_en.tql'
 LINES = 27525174

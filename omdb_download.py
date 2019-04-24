@@ -1,7 +1,8 @@
-import requests
 import json
 import os
+import requests
 from typing import Dict, Optional
+
 from constants import OMDB_API_KEY, OMDB_JSONS_DIR
 
 
