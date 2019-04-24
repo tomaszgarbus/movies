@@ -16,17 +16,45 @@ Another thing to implement is distinguishing left-side and right-side context.
 ### Google news:
 ```
 Processing movie: Star Wars IV
-8/15 fields matched with Wiki
+7/15 fields matched with Wiki
 Processing movie: Star Wars V
 6/16 fields matched with Wiki
 Processing movie: Star Wars VI
-5/15 fields matched with Wiki
+7/15 fields matched with Wiki
 Processing movie: Star Wars I
 6/16 fields matched with Wiki
 Processing movie: Star Wars II
-7/16 fields matched with Wiki
+8/16 fields matched with Wiki
 Processing movie: Star Wars III
-6/15 fields matched with Wiki
+8/15 fields matched with Wiki
+Processing movie: Forrest Gump
+6/16 fields matched with Wiki
+Processing movie: Back To The Future
+7/17 fields matched with Wiki
+Processing movie: David And Lisa
+4/12 fields matched with Wiki
+Processing movie: Marley And Me
+4/16 fields matched with Wiki
+Processing movie: 101 Dalmatians
+4/16 fields matched with Wiki
+Processing movie: Lassie
+5/11 fields matched with Wiki
+Processing movie: Titanic
+6/19 fields matched with Wiki
+Processing movie: Shawshank Redemption
+5/15 fields matched with Wiki
+Processing movie: Se7en
+7/15 fields matched with Wiki
+Processing movie: True Detective
+3/13 fields matched with Wiki
+Processing movie: Big Lebowski
+3/14 fields matched with Wiki
+Processing movie: Death Proof
+4/10 fields matched with Wiki
+Processing movie: Slumdog Millionaire
+9/19 fields matched with Wiki
+Processing movie: Lemonade Joe
+2/10 fields matched with Wiki
 ```
 ### Bert:
 ```
@@ -42,6 +70,34 @@ Processing movie: Star Wars II
 8/16 fields matched with Wiki
 Processing movie: Star Wars III
 8/15 fields matched with Wiki
+Processing movie: Forrest Gump
+6/16 fields matched with Wiki
+Processing movie: Back To The Future
+7/17 fields matched with Wiki
+Processing movie: David And Lisa
+4/12 fields matched with Wiki
+Processing movie: Marley And Me
+4/16 fields matched with Wiki
+Processing movie: 101 Dalmatians
+4/16 fields matched with Wiki
+Processing movie: Lassie
+5/11 fields matched with Wiki
+Processing movie: Titanic
+6/19 fields matched with Wiki
+Processing movie: Shawshank Redemption
+5/15 fields matched with Wiki
+Processing movie: Se7en
+7/15 fields matched with Wiki
+Processing movie: True Detective
+3/13 fields matched with Wiki
+Processing movie: Big Lebowski
+3/14 fields matched with Wiki
+Processing movie: Death Proof
+4/10 fields matched with Wiki
+Processing movie: Slumdog Millionaire
+9/19 fields matched with Wiki
+Processing movie: Lemonade Joe
+2/10 fields matched with Wiki
 ```
 
 ### Window_size = 5
