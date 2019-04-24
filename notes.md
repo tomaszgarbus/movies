@@ -13,6 +13,37 @@ Wiki: `score of 90 out of 100 ( based on 24 reviews')`
 Another thing to implement is distinguishing left-side and right-side context.
 
 ## Results
+### Google news:
+```
+Processing movie: Star Wars IV
+8/15 fields matched with Wiki
+Processing movie: Star Wars V
+6/16 fields matched with Wiki
+Processing movie: Star Wars VI
+5/15 fields matched with Wiki
+Processing movie: Star Wars I
+6/16 fields matched with Wiki
+Processing movie: Star Wars II
+7/16 fields matched with Wiki
+Processing movie: Star Wars III
+6/15 fields matched with Wiki
+```
+### Bert:
+```
+Processing movie: Star Wars IV
+7/15 fields matched with Wiki
+Processing movie: Star Wars V
+6/16 fields matched with Wiki
+Processing movie: Star Wars VI
+7/15 fields matched with Wiki
+Processing movie: Star Wars I
+6/16 fields matched with Wiki
+Processing movie: Star Wars II
+8/16 fields matched with Wiki
+Processing movie: Star Wars III
+8/15 fields matched with Wiki
+```
+
 ### Window_size = 5
 ```
 number: 1977 context: Year

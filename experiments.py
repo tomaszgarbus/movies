@@ -177,17 +177,30 @@ def locate_omdb_values_single_movie(json_viz: VisualizeJson,
     return result
 
 
+def print_omdb_matched_values_count(matches: List[Tuple[NumberContext, List[NumberContext]]]) -> None:
+    """
+    Prints, to standard output, the ratio of matched values from OMDb.
+
+    :param matches: Results of `locate_omdb_values_single_movie` call.
+    """
+    nonempty = sum([1 if l else 0 for _, l in matches])
+    print("%d/%d fields matched with Wiki" % (nonempty, len(matches)))
+
+
 def locate_omdb_values(json_viz: VisualizeJson,
                        wiki_window_sizes: Iterable[int] = tuple(range(1, 11)),
-                       verbose=True)\
+                       show_matches=True,
+                       show_match_ratio=False)\
         -> List[Tuple[str, List[Tuple[NumberContext, List[NumberContext]]]]]:
     """
     For each movie listed in the csv file at MOVIES_TO_FETCH_PATH (see constants.py), iterates through all fields in
-    the OMDb json and tries to locate the same value in a Wikipedia context. Displays results on standard output.
+    the OMDb json and tries to locate the same value in a Wikipedia context. Returns the list of results and optionally
+    displays results on standard output.
 
     :param json_viz: An instance of VisualizeJson object.
     :param wiki_window_sizes: Radii of context windows for Wikipedia.
-    :param verbose: Whether to display found pairs.
+    :param show_matches: Whether to display found pairs.
+    :param show_match_ratio: Whether to display ratio of matched fields (against all fields).
     :return: Returns a list of pairs (movie title, list of matches for movie). For the description of the second element
              refer to `locate_omdb_values_single_movie`.
     """
@@ -206,7 +219,7 @@ def locate_omdb_values(json_viz: VisualizeJson,
                                                   omdb_query=omdb_query,
                                                   pedia_resource=pedia_resource,
                                                   wiki_window_sizes=wiki_window_sizes)
-        if verbose:
+        if show_matches:
             for ((num, convec, conraw), closest_wiki) in matches:
                 print("number:", num, "context:", conraw)
                 print("Wikipedia context candidates:")
@@ -216,6 +229,8 @@ def locate_omdb_values(json_viz: VisualizeJson,
                 else:
                     print("None found")
                     print()
+        if show_match_ratio:
+            print_omdb_matched_values_count(matches)
 
         result.append((row[1], matches))
     return result
