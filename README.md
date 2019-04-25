@@ -60,6 +60,9 @@ Here, most values from the json, which occur in the Wikipedia article, have been
 In each block, the first (number, context) pair originates from OMDb json, the list below it are top 15 Wikipedia pairs,
 where the first value in the triplet is cosine similarity of contexts, the second is the number token and the third is
 raw context.
+
+The results below are obtained with BERT embeddings. Contextualized embeddings performed better here, for example on a
+pair of contexts (`"Runtime min"`, `"Running time"`).
 ```
 number: 1977 context: Year
 (0.6274531, '15', 'Registry years')
