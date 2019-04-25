@@ -9,47 +9,8 @@ from wiki_articles_download import tokens_list_to_context_json, download_article
     preprocess_wiki_article, tokenize_article_text
 
 
-def compare_omdb_with_wiki(json_viz: VisualizeJson, wiki_window_size=10) -> None:
-    """
-    Compares OMDb jsons with jsonized Wikipedia articles, using t-SNE visualizations of context embeddings as well as
-    finding closest contexts to each number found in |json_viz|.
-
-    :param json_viz: An instance of VisualizeJson.
-    :param wiki_window_size: Radius of a context window for Wikipedia.  # TODO: rename variable to wiki_window_radius
-    """
-    with open(MOVIES_TO_FETCH_PATH, 'r') as movies_csv:
-        reader = csv.reader(movies_csv, delimiter=',', )
-        csv_rows = [row for row in reader][1:]
-
-    for row in csv_rows:
-        print("Row id: " + str(row[0]))
-        omdb_query = row[2]
-        pedia_resource = row[3]
-
-        omdb_json = preprocess_movie_json(get_and_cache_movie_json(omdb_query))
-        wikipedia_text = download_article_or_load_from_cache(pedia_resource)
-        wikipedia_text = preprocess_wiki_article(wikipedia_text)
-        wikipedia_tokenized = tokenize_article_text(wikipedia_text)
-        # tokens_lim = 1500
-        wikipedia_json = tokens_list_to_context_json(wikipedia_tokenized,
-                                                     window_size=wiki_window_size,
-                                                     include_if=number_heuristic)
-
-        omdb_pairs = json_viz.get_number_context_pairs(omdb_json)
-        wiki_pairs = json_viz.get_number_context_pairs(wikipedia_json)
-        for (num, convec, conraw) in omdb_pairs:
-            closest_wiki = json_viz.k_closest_contexts(convec, wiki_pairs, k=15)
-            print("number:", num, "context:", conraw)
-            print('\n'.join(list(map(lambda a: str((a[1], a[0][0], a[0][2])), closest_wiki))))
-            print()
-
-        json_viz.visualize_many([omdb_json, wikipedia_json],
-                                show_context=False,
-                                limit_per_json=50)
-
-
-def compare_omdb_with_wiki_multi_window_sizes(json_viz: VisualizeJson,
-                                              wiki_window_sizes: Iterable[int] = tuple(range(1, 11))) -> None:
+def compare_omdb_with_wiki(json_viz: VisualizeJson,
+                           wiki_window_sizes: Iterable[int] = tuple(range(1, 11))) -> None:
     """
     Compares OMDb jsons with jsonized Wikipedia articles, using t-SNE visualizations of context embeddings as well as
     finding closest contexts to each number found in |json_viz|.
