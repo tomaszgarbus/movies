@@ -15,6 +15,7 @@ def compare_omdb_with_wiki(json_viz: VisualizeJson,
     Compares OMDb jsons with jsonized Wikipedia articles, using t-SNE visualizations of context embeddings as well as
     finding closest contexts to each number found in |json_viz|.
     The jsonization of Wikipedia article is performed multiple times (ones for each window size).
+    Performs the procedure for every movie listed in the csv.
 
     :param json_viz: An instance of VisualizeJson.
     :param wiki_window_sizes: Radii of context windows for Wikipedia.
@@ -27,30 +28,56 @@ def compare_omdb_with_wiki(json_viz: VisualizeJson,
         print("Row id: " + str(row[0]))
         omdb_query = row[2]
         pedia_resource = row[3]
+        compare_omdb_with_wiki_single_movie(json_viz=json_viz,
+                                            omdb_query=omdb_query,
+                                            pedia_resource=pedia_resource,
+                                            wiki_window_sizes=wiki_window_sizes)
 
-        omdb_json = preprocess_movie_json(get_and_cache_movie_json(omdb_query))
-        wikipedia_text = download_article_or_load_from_cache(pedia_resource)
-        wikipedia_text = preprocess_wiki_article(wikipedia_text)
-        wikipedia_tokenized = tokenize_article_text(wikipedia_text)
-        # tokens_lim = 1500
-        wikipedia_json = {}
-        for window_size in wiki_window_sizes:
-            tmp_wiki_json = tokens_list_to_context_json(wikipedia_tokenized,
-                                                        window_size=window_size,
-                                                        include_if=number_heuristic)
-            wikipedia_json = {**wikipedia_json, **tmp_wiki_json}
 
-        omdb_pairs = json_viz.get_number_context_pairs(omdb_json)
-        wiki_pairs = json_viz.get_number_context_pairs(wikipedia_json)
-        for (num, convec, conraw) in omdb_pairs:
-            closest_wiki = json_viz.k_closest_contexts(convec, wiki_pairs, k=15)
-            print("number:", num, "context:", conraw)
-            print('\n'.join(list(map(lambda a: str((a[1], a[0][0], a[0][2])), closest_wiki))))
-            print()
+def compare_omdb_with_wiki_single_movie(json_viz: VisualizeJson,
+                                        omdb_query: str,
+                                        pedia_resource: str,
+                                        wiki_window_sizes)\
+        -> List[Tuple[NumberContext, List[Tuple[NumberContext, float]]]]:
+    """
+    Compares OMDb jsons with jsonized Wikipedia articles, using t-SNE visualizations of context embeddings as well as
+    finding the closest contexts to each number found in |json_viz|. Performs this only for one movie.
 
-        json_viz.visualize_many([omdb_json, wikipedia_json],
-                                show_context=False,
-                                limit_per_json=50)
+    :param json_viz: An instance of VisualizeJson.
+    :param omdb_query: Phrase to query OMDb API with.
+    :param pedia_resource: Exact name of the Wikipedia resource for the movie.
+    :param wiki_window_sizes: Radii of context windows for Wikipedia.
+    :return: List of pairs (number context, list of closest number contexts with distance).
+    """
+    omdb_json = preprocess_movie_json(get_and_cache_movie_json(omdb_query))
+    wikipedia_text = download_article_or_load_from_cache(pedia_resource)
+    wikipedia_text = preprocess_wiki_article(wikipedia_text)
+    wikipedia_tokenized = tokenize_article_text(wikipedia_text)
+    # tokens_lim = 1500
+    wikipedia_json = {}
+    for window_size in wiki_window_sizes:
+        tmp_wiki_json = tokens_list_to_context_json(wikipedia_tokenized,
+                                                    window_size=window_size,
+                                                    include_if=number_heuristic)
+        wikipedia_json = {**wikipedia_json, **tmp_wiki_json}
+
+    result = []
+
+    omdb_pairs = json_viz.get_number_context_pairs(omdb_json)
+    wiki_pairs = json_viz.get_number_context_pairs(wikipedia_json)
+    for (num, convec, conraw) in omdb_pairs:
+        closest_wiki = json_viz.k_closest_contexts(convec, wiki_pairs, k=15)
+        print("number:", num, "context:", conraw)
+        print('\n'.join(list(map(lambda a: str((a[1], a[0][0], a[0][2])), closest_wiki))))
+        print()
+
+        result.append(((num, convec, conraw),
+                       closest_wiki))
+
+    json_viz.visualize_many([omdb_json, wikipedia_json],
+                            show_context=False,
+                            limit_per_json=50)
+    return result
 
 
 def compare_wiki_articles(json_viz: VisualizeJson, wiki_window_size=10) -> None:
