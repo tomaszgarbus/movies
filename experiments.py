@@ -37,7 +37,7 @@ def compare_omdb_with_wiki(json_viz: VisualizeJson,
 def compare_omdb_with_wiki_single_movie(json_viz: VisualizeJson,
                                         omdb_query: str,
                                         pedia_resource: str,
-                                        wiki_window_sizes)\
+                                        wiki_window_sizes: Iterable[int] = tuple(list(range(1, 11))))\
         -> List[Tuple[NumberContext, List[Tuple[NumberContext, float]]]]:
     """
     Compares OMDb jsons with jsonized Wikipedia articles, using t-SNE visualizations of context embeddings as well as
@@ -203,12 +203,13 @@ def locate_omdb_values(json_viz: VisualizeJson,
         pedia_resource = row[3]
 
         matches[row[1]] = locate_omdb_values_single_movie(json_viz=json_viz,
-                                                  omdb_query=omdb_query,
-                                                  pedia_resource=pedia_resource,
-                                                  wiki_window_sizes=wiki_window_sizes)
+                                                          omdb_query=omdb_query,
+                                                          pedia_resource=pedia_resource,
+                                                          wiki_window_sizes=wiki_window_sizes)
 
     if show_matches:
         for row in csv_rows:
+            print("Movie: " + row[1])
             for ((num, convec, conraw), closest_wiki) in matches[row[1]]:
                 print("number:", num, "context:", conraw)
                 print("Wikipedia context candidates:")
@@ -220,6 +221,7 @@ def locate_omdb_values(json_viz: VisualizeJson,
                     print()
     if show_match_ratio:
         for row in csv_rows:
+            print("Movie: " + row[1])
             print_omdb_matched_values_count(matches[row[1]])
 
     return matches
