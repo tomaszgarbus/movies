@@ -1,5 +1,5 @@
 import csv
-from typing import Iterable, List, Tuple
+from typing import Iterable, List, Tuple, Dict
 
 from constants import MOVIES_TO_FETCH_PATH
 from omdb_download import get_and_cache_movie_json, preprocess_movie_json
@@ -191,7 +191,7 @@ def locate_omdb_values(json_viz: VisualizeJson,
                        wiki_window_sizes: Iterable[int] = tuple(range(1, 11)),
                        show_matches=True,
                        show_match_ratio=False)\
-        -> List[Tuple[str, List[Tuple[NumberContext, List[NumberContext]]]]]:
+        -> Dict[str, List[Tuple[NumberContext, List[NumberContext]]]]:
     """
     For each movie listed in the csv file at MOVIES_TO_FETCH_PATH (see constants.py), iterates through all fields in
     the OMDb json and tries to locate the same value in a Wikipedia context. Returns the list of results and optionally
@@ -201,26 +201,27 @@ def locate_omdb_values(json_viz: VisualizeJson,
     :param wiki_window_sizes: Radii of context windows for Wikipedia.
     :param show_matches: Whether to display found pairs.
     :param show_match_ratio: Whether to display ratio of matched fields (against all fields).
-    :return: Returns a list of pairs (movie title, list of matches for movie). For the description of the second element
-             refer to `locate_omdb_values_single_movie`.
+    :return: Returns a dictionary of pairs (movie title, list of matches for movie). For the description of the value
+             element refer to `locate_omdb_values_single_movie`.
     """
     with open(MOVIES_TO_FETCH_PATH, 'r') as movies_csv:
         reader = csv.reader(movies_csv, delimiter=',', )
         csv_rows = [row for row in reader][1:]
 
-    result = []
-
+    matches = {}
     for row in csv_rows:
         print("Processing movie: " + row[1])
         omdb_query = row[2]
         pedia_resource = row[3]
 
-        matches = locate_omdb_values_single_movie(json_viz=json_viz,
+        matches[row[1]] = locate_omdb_values_single_movie(json_viz=json_viz,
                                                   omdb_query=omdb_query,
                                                   pedia_resource=pedia_resource,
                                                   wiki_window_sizes=wiki_window_sizes)
-        if show_matches:
-            for ((num, convec, conraw), closest_wiki) in matches:
+
+    if show_matches:
+        for row in csv_rows:
+            for ((num, convec, conraw), closest_wiki) in matches[row[1]]:
                 print("number:", num, "context:", conraw)
                 print("Wikipedia context candidates:")
                 if closest_wiki:
@@ -229,8 +230,8 @@ def locate_omdb_values(json_viz: VisualizeJson,
                 else:
                     print("None found")
                     print()
-        if show_match_ratio:
-            print_omdb_matched_values_count(matches)
+    if show_match_ratio:
+        for row in csv_rows:
+            print_omdb_matched_values_count(matches[row[1]])
 
-        result.append((row[1], matches))
-    return result
+    return matches

@@ -1,9 +1,10 @@
+import gensim
+import numpy as np
 from typing import Optional, List
 
-import numpy as np
-from word_vectors_model.model_base import ModelBase
-import gensim
+from constants import PRETRAINED_W2V_PATH
 from utils import number_heuristic
+from word_vectors_model.model_base import ModelBase
 
 
 class GoogleNewsW2V(ModelBase):
@@ -11,14 +12,17 @@ class GoogleNewsW2V(ModelBase):
     A class encapsulating pretrained GoogleNews word2vec vectors.
     """
 
-    def __init__(self, w2v_model: gensim.models.KeyedVectors):
+    def __init__(self, w2v_model: Optional[gensim.models.KeyedVectors]):
         """
         Initializes the instance with a loaded Google News model.
 
         :param w2v_model: Initialized gensim class with vectors loaded from file.
         """
         super(GoogleNewsW2V, self).__init__()
-        self.w2v_model = w2v_model
+        if w2v_model is None:
+            self.w2v_model = gensim.models.KeyedVectors.load_word2vec_format(PRETRAINED_W2V_PATH, binary=True)
+        else:
+            self.w2v_model = w2v_model
 
     def _safe_get_vector(self, word: str) -> Optional[np.ndarray]:
         """
