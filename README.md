@@ -634,6 +634,6 @@ Facebook Ads: 100
 Gumtree Ads: 100
 ```
 An example idea would be to created new NumberContexts from existing ones if they are close enough, using several
-aggregating functions (`sum, avg, mul`).
+aggregating functions (`sum, avg, mul, count`).
 Another approach would be to build trees of NumberContexts instead of lists. Leaves would be the same pairs as in
 original lists, and they could be joined into trees with hierarchical clustering.
