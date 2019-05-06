@@ -1,15 +1,15 @@
-from typing import List, Optional
-import os
-from sip_experiments.constants_sip import SAMPLE_1000_PATH
-from lxml import html
-from tqdm import tqdm
-from word_vectors_model.model_base import ModelBase
-from word_vectors_model.bert_pretrained import BertPretrained
-from word_vectors_model.flair_pretrained import FlairPretrained
-from flair.embeddings import BertEmbeddings, FlairEmbeddings
 import nltk
 import numpy as np
+import os
+from flair.embeddings import FlairEmbeddings
+from lxml import html
+from tqdm import tqdm
+from typing import List, Optional
+
+from sip_experiments.constants_sip import SAMPLE_1000_PATH
 from visualize_json import VisualizeJson, NumberContext
+from word_vectors_model.flair_pretrained import FlairPretrained
+from word_vectors_model.model_base import ModelBase
 
 
 def list_sample_files() -> List[str]:
@@ -69,6 +69,19 @@ def load_embedding_from_cache(fname: str) -> Optional[np.ndarray]:
         return None
 
 
+def document_to_tokens(doc: str) -> List[str]:
+    """
+    Tokenizes the document and cleans it (from non-alphanumeric tokens, empty tokens, javascript litter etc.).
+
+    :param doc: Document to tokenize.
+    :return: List of tokens.
+    """
+    tokenized = nltk.word_tokenize(cut_text_by_phrase(doc, 'Typ dokumentu'))
+    tokenized = filter_non_alphanumeric_tokens(tokenized)
+    tokenized = list(filter(lambda a: not is_camel_case_heuristic(a), tokenized))
+    return tokenized
+
+
 def embed_and_cache(sample: str, fname: str, model: ModelBase) -> np.ndarray:
     """
     Constructs or reads from cache embedding for the sample and caches it.
@@ -83,11 +96,23 @@ def embed_and_cache(sample: str, fname: str, model: ModelBase) -> np.ndarray:
         return loaded
     else:
         fpath = os.path.join(SAMPLE_1000_PATH, fname + '.npy')
-        tokenized = nltk.word_tokenize(cut_text_by_phrase(sample, 'Typ dokumentu'))
-        tokenized = filter_non_alphanumeric_tokens(tokenized)
+        tokenized = document_to_tokens(sample)
         embedding = model.vectorize_context(tokenized)
         np.save(fpath, embedding)
         return embedding
+
+
+def is_camel_case_heuristic(token: str) -> bool:
+    """
+    A heuristic determining for a given token whether it is in (camelCase or CamelCase) or not.
+
+    :param token: A single token from nltk tokenizer.
+    :return: True iff the token has been determined to be camel case.
+    """
+    for i in range(1, len(token)):
+        if token[i].isupper() and token[i-1].islower():
+            return True
+    return False
 
 
 if __name__ == '__main__':
@@ -117,6 +142,11 @@ if __name__ == '__main__':
     print("Finding k-closest")
     json_viz = VisualizeJson(model=flair_model)
     found = json_viz.k_closest_contexts(numcons[0][1], numcons, k=1000)
-    print(numcons[0][0])
+    print(numcons[1][0])
     for numcon, sim in found:
         print(sim, numcon[0])
+
+    sample = numcons[1][2]
+    tokenized = nltk.word_tokenize(cut_text_by_phrase(sample, 'Typ dokumentu'))
+    tokenized = filter_non_alphanumeric_tokens(tokenized)
+    print(tokenized)
