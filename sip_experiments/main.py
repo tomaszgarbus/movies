@@ -79,7 +79,7 @@ def embed_and_cache(sample: str, fname: str, model: ModelBase) -> np.ndarray:
     :return: A numpy array - an embedding.
     """
     loaded = load_embedding_from_cache(fname)
-    if loaded:
+    if loaded is not None:
         return loaded
     else:
         fpath = os.path.join(SAMPLE_1000_PATH, fname + '.npy')
