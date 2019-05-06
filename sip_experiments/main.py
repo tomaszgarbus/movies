@@ -139,14 +139,14 @@ if __name__ == '__main__':
     for fname, embedding, sample in tqdm(zip(sample_files_list, embeddings, samples)):
         numcons.append((fname, embedding, sample))
 
-    print("Finding k-closest")
-    json_viz = VisualizeJson(model=flair_model)
-    chosen = 1
-    found = json_viz.k_closest_contexts(numcons[chosen][1], numcons, k=1000)
-    print(numcons[chosen][0])
-    for numcon, sim in found:
-        print(sim, numcon[0])
+    print("Finding 5 closest")
+    for chosen in range(20):
+        json_viz = VisualizeJson(model=flair_model)
+        found = json_viz.k_closest_contexts(numcons[chosen][1], numcons, k=6)
+        print(numcons[chosen][0])
+        for numcon, sim in found[1:]:
+            print(sim, numcon[0])
 
-    sample = numcons[chosen][2]
-    tokenized = document_to_tokens(sample)
-    print(tokenized)
+        sample = numcons[chosen][2]
+        tokenized = document_to_tokens(sample)
+        # print(tokenized)
