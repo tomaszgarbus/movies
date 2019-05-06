@@ -141,12 +141,12 @@ if __name__ == '__main__':
 
     print("Finding k-closest")
     json_viz = VisualizeJson(model=flair_model)
-    found = json_viz.k_closest_contexts(numcons[0][1], numcons, k=1000)
-    print(numcons[1][0])
+    chosen = 1
+    found = json_viz.k_closest_contexts(numcons[chosen][1], numcons, k=1000)
+    print(numcons[chosen][0])
     for numcon, sim in found:
         print(sim, numcon[0])
 
-    sample = numcons[1][2]
-    tokenized = nltk.word_tokenize(cut_text_by_phrase(sample, 'Typ dokumentu'))
-    tokenized = filter_non_alphanumeric_tokens(tokenized)
+    sample = numcons[chosen][2]
+    tokenized = document_to_tokens(sample)
     print(tokenized)
