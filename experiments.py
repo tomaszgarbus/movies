@@ -181,7 +181,7 @@ def locate_omdb_values(json_viz: VisualizeJson,
                        show_match_ratio=False)\
         -> Dict[str, List[Tuple[NumberContext, List[NumberContext]]]]:
     """
-    For each movie listed in the csv file at MOVIES_TO_FETCH_PATH (see constants.py), iterates through all fields in
+    For each movie listed in the csv file at MOVIES_TO_FETCH_PATH (see constants_sip.py), iterates through all fields in
     the OMDb json and tries to locate the same value in a Wikipedia context. Returns the list of results and optionally
     displays results on standard output.
 

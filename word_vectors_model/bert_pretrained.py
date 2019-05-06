@@ -10,11 +10,13 @@ class BertPretrained(ModelBase):
     Encapsulates pretrained Bert Embeddings (from Zalando Flair) by conforming to the ModelBase interface.
     """
 
-    def __init__(self):
+    def __init__(self, model: Optional[BertEmbeddings] = None):
         super(BertPretrained, self).__init__()
 
-        # TODO: make this configurable via constructor parameters.
-        self.model = BertEmbeddings('bert-base-uncased')
+        if model is not None:
+            self.model = model
+        else:
+            self.model = BertEmbeddings('bert-base-uncased')
 
     def dim(self) -> int:
         """

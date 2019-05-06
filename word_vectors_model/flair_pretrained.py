@@ -10,14 +10,16 @@ class FlairPretrained(ModelBase):
     Encapsulates pretrained Flair Embeddings (Zalando Flair) by conforming to the ModelBase interface.
     """
 
-    def __init__(self):
+    def __init__(self, model = None):
         super(FlairPretrained, self).__init__()
 
-        # TODO: make this configurable via constructor parameters.
-        self.model = StackedEmbeddings([
-            FlairEmbeddings('news-forward-fast'),
-            FlairEmbeddings('news-backward-fast'),
-        ])
+        if model is not None:
+            self.model = model
+        else:
+            self.model = StackedEmbeddings([
+                FlairEmbeddings('news-forward-fast'),
+                FlairEmbeddings('news-backward-fast'),
+            ])
 
     def dim(self) -> int:
         """
