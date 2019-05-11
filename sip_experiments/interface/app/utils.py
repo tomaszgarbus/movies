@@ -1,9 +1,8 @@
 import os
-from html.parser import HTMLParser
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
-from app.constants import SAMPLE_1000_DIR, KEYWORDS_STR, AUTHOR_STR
-from app.sip_parsers import KeywordsHTMLParser
+from app.constants import SAMPLE_1000_DIR
+from app.sip_parsers import KeywordsHTMLParser, InterpretationSubjectHTMLParser
 
 
 def open_raw_html(fname: str) -> str:
@@ -54,3 +53,17 @@ def get_keywords_heur(raw_html: str) -> List[str]:
     parser.feed(raw_html)
     keywords = parser.get_keywords()
     return keywords
+
+
+def get_subject_heur(raw_html: str) -> Optional[str]:
+    """
+    From a raw HTML document, attempts to extract the interpretation subject field.
+    This is a heuristic tested on very few HTMLs with no guarantee to work as intended.
+
+    :param raw_html: A raw HTML.
+    :return: A single string or None.
+    """
+    parser = InterpretationSubjectHTMLParser()
+    parser.feed(raw_html)
+    subj = parser.get_subject()
+    return subj

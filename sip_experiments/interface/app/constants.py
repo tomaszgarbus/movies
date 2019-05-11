@@ -18,3 +18,6 @@ INTERPRETATION_SUBJECT = 'Istota interpretacji:'
 
 # Pattern to find the "Position" field in HTML.
 POSITION_STR = 'Stanowisko:'
+
+# "Not available" string.
+NA_STR = "N/A"

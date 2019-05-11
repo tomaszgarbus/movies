@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 import os
-from app.utils import load_top_5_similar, open_raw_html, get_keywords_heur
-from app.constants import SAMPLE_1000_DIR
+from app.utils import load_top_5_similar, open_raw_html, get_keywords_heur, get_subject_heur
+from app.constants import SAMPLE_1000_DIR, NA_STR
 
 
 def index(request):
@@ -11,9 +11,13 @@ def index(request):
 
 def show(request, doc_name):
     sims = load_top_5_similar(doc_name)
-    keywords = get_keywords_heur(open_raw_html(doc_name))
+    raw_html = open_raw_html(doc_name)
+    keywords = get_keywords_heur(raw_html)
+    subject = get_subject_heur(raw_html)
+    subject = subject if subject is not None else NA_STR
     return render(request, 'show.html', context={
         'sims': sims,
+        'subject': subject,
         'keywords': keywords,
         'doc_name': doc_name,
         'doc_src': 'sample1000/' + doc_name + '.html'
