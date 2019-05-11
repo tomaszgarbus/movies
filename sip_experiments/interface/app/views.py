@@ -1,8 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 import os
-from app.utils import load_top_5_similar
-from interface import settings
+from app.utils import load_top_5_similar, open_raw_html, get_keywords_heur
 from app.constants import SAMPLE_1000_DIR
 
 
@@ -12,8 +11,10 @@ def index(request):
 
 def show(request, doc_name):
     sims = load_top_5_similar(doc_name)
+    keywords = get_keywords_heur(open_raw_html(doc_name))
     return render(request, 'show.html', context={
         'sims': sims,
+        'keywords': keywords,
         'doc_name': doc_name,
         'doc_src': 'sample1000/' + doc_name + '.html'
     })
