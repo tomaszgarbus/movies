@@ -11,6 +11,7 @@
     {{ doc1_name }} {{ doc2_name }}
     <br>
     {% load static %}
+    {% include "doc_description.html" %}
     <iframe src="{% static doc1_src %}" width="40%" height="600px"></iframe>
     <iframe src="{% static doc2_src %}" width="40%" height="600px"></iframe>
 </body>

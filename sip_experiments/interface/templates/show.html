@@ -15,25 +15,6 @@
         <a href="{% url 'listall' %}">Home</a>
     </div>
     <div class="container">
-        <h1 class="h1">Document {{ doc_name }}</h1>
-    </div>
-    <div class="container">
-        <h2 class="h2">Keywords</h2>
-        <table class="table table-striped">
-            {% for keyword in keywords %}
-                <tr>
-                <td>
-                    {{ keyword }}
-                </td>
-                </tr>
-            {% endfor %}
-        </table>
-    </div>
-    <div class="container">
-        <h2 class="h2">Interpretation subject</h2>
-        {{ subject }}
-    </div>
-    <div class="container">
         <h2 class="h2">Top 5 similar documents</h2>
         <table class="table table-striped">
         <th>
@@ -60,12 +41,6 @@
         {% endfor %}
         </table>
     </div>
-    <div class="container bg-info">
-        <h2 class="h2">Content</h2>
-        <div class="embed-responsive embed-responsive-4by3">
-            {% load static %}
-            <iframe src="{% static doc_src %}"></iframe>
-        </div>
-    </div>
+    {% include "doc_description.html" %}
 </body>
 </html>
