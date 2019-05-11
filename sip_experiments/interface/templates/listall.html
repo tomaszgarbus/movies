@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+{% load bootstrap3 %}
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>List all</title>
+</head>
+<body>
+    <h1 class="h1">All documents</h1>
+    <table class="table table-striped">
+        {% for fname in files %}
+            <tr>
+                <td>
+                    {{ fname }}
+                </td>
+                <td>
+                    <a href="{% url 'show' fname %}">Show</a>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

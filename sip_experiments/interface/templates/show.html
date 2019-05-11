@@ -1,15 +1,55 @@
 <!DOCTYPE html>
+{% load bootstrap3 %}
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>{{ doc_name }}</title>
 </head>
 <body>
-    bla bla ble ble
-    <br>
-    {{ doc_name }}
-    <br>
-    {% load static %}
-    <iframe src="{% static doc_src %}" width="50%" height="600px"></iframe>
+    <div class="container">
+        <a href="{% url 'listall' %}">Home</a>
+    </div>
+    <div class="container">
+        <h1 class="h1">Document {{ doc_name }}</h1>
+    </div>
+    <div class="container">
+        <h2 class="h2">Top 5 similar documents</h2>
+        <table class="table table-striped">
+        <th>
+            Cosine similarity
+        </th>
+        <th>
+            File name
+        </th>
+        <th>
+
+        </th>
+        {% for sim,name in sims %}
+            <tr>
+                <td>
+                    {{ sim }}
+                </td>
+                <td>
+                     {{ name }}
+                </td>
+                <td>
+                    <a href="{% url 'compare' doc_name name %}">compare side-by-side</a>
+                </td>
+            </tr>
+        {% endfor %}
+        </table>
+    </div>
+    <div class="container bg-info">
+        <h2 class="h2">Content</h2>
+        <div class="embed-responsive embed-responsive-4by3">
+            {% load static %}
+            <iframe src="{% static doc_src %}"></iframe>
+        </div>
+    </div>
 </body>
 </html>
