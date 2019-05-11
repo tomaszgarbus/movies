@@ -1,4 +1,8 @@
 <!DOCTYPE html>
+<link href="{% static 'vendor/bootstrap/css/bootstrap.css' %}" rel="stylesheet">
+
+<!-- Custom fonts for this template -->
+<link href="{% static 'vendor/font-awesome/css/font-awesome.css' %}" rel="stylesheet" type="text/css">
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -11,8 +15,15 @@
     {{ doc1_name }} {{ doc2_name }}
     <br>
     {% load static %}
-    {% include "doc_description.html" %}
-    <iframe src="{% static doc1_src %}" width="40%" height="600px"></iframe>
-    <iframe src="{% static doc2_src %}" width="40%" height="600px"></iframe>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-3">
+                {% include "doc_description.html" with desc=desc1 %}
+            </div>
+            <div class="col-sm-3">
+                {% include "doc_description.html" with desc=desc2 %}
+            </div>
+        </div>
+    </div>
 </body>
 </html>

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-{% load bootstrap3 %}
-{# Load CSS and JavaScript #}
-{% bootstrap_css %}
-{% bootstrap_javascript %}
-{# Display django.contrib.messages as Bootstrap alerts #}
-{% bootstrap_messages %}
+{% load static %}
+<link href="{% static 'vendor/bootstrap/css/bootstrap.css' %}" rel="stylesheet">
+
+<!-- Custom fonts for this template -->
+<link href="{% static 'vendor/font-awesome/css/font-awesome.css' %}" rel="stylesheet" type="text/css">
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -15,6 +15,9 @@
         <a href="{% url 'listall' %}">Home</a>
     </div>
     <div class="container">
+        <h1 class="h1">Document {{ desc.doc_name }}</h1>
+    </div>
+    <div class="container bg-light rounded p-3">
         <h2 class="h2">Top 5 similar documents</h2>
         <table class="table table-striped">
         <th>
@@ -26,7 +29,7 @@
         <th>
 
         </th>
-        {% for sim,name in sims %}
+        {% for sim,name in desc.sims %}
             <tr>
                 <td>
                     {{ sim }}
@@ -35,12 +38,13 @@
                      {{ name }}
                 </td>
                 <td>
-                    <a href="{% url 'compare' doc_name name %}">compare side-by-side</a>
+                    <a href="{% url 'compare' desc.doc_name name %}">compare side-by-side</a>
                 </td>
             </tr>
         {% endfor %}
         </table>
     </div>
+    <br>
     {% include "doc_description.html" %}
 </body>
 </html>
