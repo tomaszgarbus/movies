@@ -21,3 +21,28 @@ POSITION_STR = 'Stanowisko:'
 
 # "Not available" string.
 NA_STR = "N/A"
+
+# Possible headers for the question section, found manually on a small sample of documents.
+# There is no guarantee that this set will cover the entire dataset but should do for a vast majority of cases.
+QUESTION_SECTION_HEADERS = [
+    'W związku z powyższym zadano następujące pytanie:',
+    'W związku z powyższym zadano następujące pytania.',
+    'W związku z powyższym zadano następujące pytanie.',
+    'W związku z powyższym zadano następujące:',
+    'W związku z opisanym stanem faktycznym zadano następujące pytanie:',
+    'W związku z powyższym zadano następujące pytanie',
+]
+
+# Possible headers for the verdict section, found manually on a small sample of documents.
+# There is no guarantee that this set will cover the entire dataset but should do for most cases.
+VERDICT_SECTION_HEADERS = [
+    'W świetle obowiązującego stanu prawnego stanowisko wnioskodawcy w sprawie oceny prawnej przedstawionego stanu '
+    'faktycznego uznaje się za nieprawidłowe.',
+    'W świetle obowiązującego stanu prawnego stanowisko wnioskodawcy w sprawie oceny prawnej przedstawionego zdarzenia '
+    'przyszłego uznaje się za prawidłowe.',
+    'Na tle przedstawionego stanu faktycznego stwierdzam, co następuje.',
+    'Na tle przedstawionego zdarzenia przyszłego, stwierdzam, co następuje.',
+    'W świetle obowiązującego stanu prawnego stanowisko wnioskodawcy w sprawie oceny prawnej przedstawionego zdarzenia '
+    'przyszłego uznaje się za prawidłowe mimo, iż podatnik powołał błędną podstawę prawną.',
+    'Na tle przedstawionego stanu faktycznego, stwierdzam, co następuje.',
+]

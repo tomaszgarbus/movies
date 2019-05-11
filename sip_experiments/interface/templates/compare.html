@@ -16,12 +16,12 @@
     {{ doc1_name }} {{ doc2_name }}
     <br>
     {% load static %}
-    <div class="container">
+    <div class="container col-lg-12">
         <div class="row">
-            <div class="col-sm-3">
+            <div class="col-lg-6">
                 {% include "doc_description.html" with desc=desc1 %}
             </div>
-            <div class="col-sm-3">
+            <div class="col-lg-6">
                 {% include "doc_description.html" with desc=desc2 %}
             </div>
         </div>
