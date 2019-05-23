@@ -1,6 +1,7 @@
 import csv
 from typing import Iterable, List, Tuple, Dict
 
+from nltk import tokenize
 from constants import MOVIES_TO_FETCH_PATH
 from omdb_download import get_and_cache_movie_json, preprocess_movie_json
 from utils import number_heuristic
@@ -225,3 +226,88 @@ def locate_omdb_values(json_viz: VisualizeJson,
             print_omdb_matched_values_count(matches[row[1]])
 
     return matches
+
+
+def find_k_closest_question_answers(json_viz: VisualizeJson,
+                                    question: str,
+                                    candidates: List[NumberContext],
+                                    k: int = 15
+                                    ) -> List[Tuple[NumberContext, float]]:
+    """
+    Given a question as a string and a list of answer candidates, returns |k| closest candidates based on embeddings
+    cosine similarity.
+
+    :param json_viz: An instance of VisualizeJson.
+    :param question: A question, given as a raw string.
+    :param candidates: A list of candidate NumberContext pairs.
+    :param k: Number of values to return.
+    :return:
+    """
+    question_words = tokenize.word_tokenize(question)
+    question_vec = json_viz.model.vectorize_context(question_words)
+    return json_viz.k_closest_contexts(question_vec, candidates=candidates, k=k)
+
+
+def pedia_resource_to_wiki_pairs(json_viz: VisualizeJson,
+                                 pedia_resource: str,
+                                 wiki_window_sizes: Iterable[int] = tuple(range(1, 11))) -> List[NumberContext]:
+    """
+    Given a Wikipedia resource name, produces NumberContext pairs for the article.
+
+    :param json_viz: An instance of VisualizeJson.
+    :param pedia_resource: Resource name.
+    :param wiki_window_sizes: Radii of context windows for Wikipedia.
+    :return: List of NumberContext pairs.
+    """
+    wikipedia_text = download_article_or_load_from_cache(pedia_resource)
+    wikipedia_text = preprocess_wiki_article(wikipedia_text)
+    wikipedia_tokenized = tokenize_article_text(wikipedia_text)
+    wikipedia_json = {}
+    for window_size in wiki_window_sizes:
+        tmp_wiki_json = tokens_list_to_context_json(wikipedia_tokenized,
+                                                    window_size=window_size,
+                                                    include_if=number_heuristic)
+        wikipedia_json = {**wikipedia_json, **tmp_wiki_json}
+
+    wiki_pairs = json_viz.get_number_context_pairs(wikipedia_json)
+    return wiki_pairs
+
+
+def interactive_question_answering(json_viz: VisualizeJson,
+                                   wiki_window_sizes: Iterable[int] = tuple(range(1, 11))) -> None:
+    """
+    Asks the user for the movie title, then in a loop, user asks questions. In return they get, for each question, 15
+    closest answers.
+
+    :param json_viz: An instance of VisualizeJson.
+    :param wiki_window_sizes: Radii of context windows for Wikipedia.
+    """
+    with open(MOVIES_TO_FETCH_PATH, 'r') as movies_csv:
+        reader = csv.reader(movies_csv, delimiter=',', )
+        csv_rows = [row for row in reader][1:]
+
+    def movie_exists(title: str, csv_rows: List[List[str]]) -> bool:
+        for row in csv_rows:
+            if row[1] == title:
+                return True
+        return False
+
+    print("Provide movie title")
+    title = input().strip()
+    while not movie_exists(title, csv_rows):
+        print("Invalid title, try again")
+        title = input().strip()
+
+    for row in csv_rows:
+        if row[1] == title:
+            pedia_resource = row[3]
+
+    print("Vectorizing document...")
+    wiki_pairs = pedia_resource_to_wiki_pairs(json_viz, pedia_resource, wiki_window_sizes)
+
+    while True:
+        print("Ask a question:")
+        question = input().strip()
+        answer_candidates = find_k_closest_question_answers(json_viz=json_viz, question=question, candidates=wiki_pairs)
+        for cand in answer_candidates:
+            print(cand[1], cand[0][0], cand[0][2])

@@ -8,8 +8,8 @@ if __name__ == '__main__':
     # print("w2v model loaded successfully")
 
     model_bert = BertPretrained()
-    model_w2v = GoogleNewsW2V(None)
+    # model_w2v = GoogleNewsW2V(None)
     json_vis_bert = VisualizeJson(model_bert)
-    json_vis_w2v = VisualizeJson(model_w2v)
+    # json_vis_w2v = VisualizeJson(model_w2v)
     # compare_omdb_with_wiki()
 
